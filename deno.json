@@ -5,6 +5,16 @@
     ".": "./main.ts",
     "./types": "./types.ts"
   },
+  "publish": {
+    "include": [
+      "LICENSE",
+      "README.md",
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "tests"
+    ]
+  },
   "exclude": [
     "tests"
   ],
