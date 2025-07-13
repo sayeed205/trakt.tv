@@ -25,12 +25,20 @@
 import crypto from "node:crypto";
 import ky from "ky";
 
-import type {
-  Auth,
-  DeviceCodeResponse,
-  TokenResponse,
-  TraktOptions,
-} from "./types.ts";
+import type {Options} from "npm:ky@1.8.1";
+
+import type {Auth, DeviceCodeResponse, TokenResponse, TraktOptions,} from "./types/index.ts";
+import {
+  AnticipatedMovie,
+  Movie,
+  MovieAlias,
+  MovieRelease,
+  MovieTranslation,
+  MovieUpdates,
+  PlayedMovie,
+  TrendingMovies,
+  WatchedMovie,
+} from "./types/movies.ts";
 
 /**
  * The main Trakt.tv API client for handling OAuth2 flows and token management.
@@ -44,6 +52,88 @@ import type {
  * ```
  */
 export default class Trakt {
+  public movies = {
+    get: (id: string): Promise<Movie> =>
+      this._call<Movie>("get", `/movies/${id}`),
+    trending: (
+      params?: { page?: number; limit?: number },
+    ): Promise<TrendingMovies[]> =>
+      this._call<TrendingMovies[]>("get", "/movies/trending", params),
+    popular: (params?: { page?: number; limit?: number }): Promise<Movie[]> =>
+      this._call<Movie[]>("get", "/movies/popular", params),
+    anticipated: (
+      params?: { page?: number; limit?: number },
+    ): Promise<AnticipatedMovie[]> =>
+      this._call<AnticipatedMovie[]>("get", "/movies/anticipated", params),
+    watched: (params?: {
+      period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
+      page?: number;
+      limit?: number;
+    }): Promise<WatchedMovie[]> =>
+      this._call<WatchedMovie[]>(
+        "get",
+        `/movies/watched/${params?.period || "weekly"}`,
+        {
+          page: params?.page,
+          limit: params?.limit,
+        },
+      ),
+    played: (params?: {
+      period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
+      page?: number;
+      limit?: number;
+    }): Promise<PlayedMovie[]> =>
+      this._call<PlayedMovie[]>(
+        "get",
+        `/movies/played/${params?.period || "weekly"}`,
+        {
+          page: params?.page,
+          limit: params?.limit,
+        },
+      ),
+    updates: (
+      params: { start_date: string; page?: number; limit?: number },
+    ): Promise<MovieUpdates[]> =>
+      this._call<MovieUpdates[]>("get", "/movies/updates", params),
+    aliases: (id: string): Promise<MovieAlias[]> =>
+      this._call<MovieAlias[]>("get", `/movies/${id}/aliases`),
+    releases: (params: {
+      id: string;
+      country?: string;
+    }): Promise<MovieRelease[]> =>
+      this._call<MovieRelease[]>(
+        "get",
+        `/movies/${params.id}/releases${
+          params.country ? `/${params.country}` : ""
+        }`,
+      ),
+    translations: (params: {
+      id: string;
+      language?: string;
+    }): Promise<MovieTranslation[]> =>
+      this._call<MovieTranslation[]>(
+        "get",
+        `/movies/${params.id}/translations${
+          params.language ? `/${params.language}` : ""
+        }`,
+      ),
+    comments: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/comments`),
+    lists: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/lists`),
+    people: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/people`),
+    ratings: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/ratings`),
+    related: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/related`),
+    stats: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/stats`),
+    studios: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/studios`),
+    watching: (params: { id: string }) =>
+      this._call("get", `/movies/${params.id}/watching`),
+  };
   private settings: TraktOptions;
   private auth: Auth;
 
@@ -202,6 +292,34 @@ export default class Trakt {
       await this._revoke();
       this.auth = {};
     }
+  }
+
+  private _call<T = unknown>(
+    method: "get" | "post" | "put" | "delete",
+    path: string,
+    params: Record<string, unknown> = {},
+  ): Promise<T> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": this.settings.client_id,
+      "User-Agent": this.settings.user_agent!,
+    };
+
+    if (this.auth.access_token) {
+      headers["Authorization"] = `Bearer ${this.auth.access_token}`;
+    }
+
+    const options: Options = {
+      method,
+      headers,
+      searchParams: method === "get"
+        ? params as Record<string, string | number | boolean>
+        : undefined,
+      json: method !== "get" ? params : undefined,
+    };
+
+    return ky(`${this.settings.api_url}${path}`, options).json<T>();
   }
 
   private async _exchange(
