@@ -2,8 +2,8 @@
   "name": "@hitarashi/trakt",
   "version": "0.0.0",
   "exports": {
-    ".": "./main.ts",
-    "./types": "./types.ts"
+    ".": "./src/main.ts",
+    "./types": "./src/types.ts"
   },
   "publish": {
     "include": [
@@ -19,7 +19,7 @@
     "tests"
   ],
   "tasks": {
-    "dev": "deno run --watch main.ts"
+    "dev": "deno run --watch src/main.ts"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
