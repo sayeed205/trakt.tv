@@ -1,5 +1,5 @@
 {
-  "name": "@hitarashi/trakt.tv",
+  "name": "@hitarashi/trakt",
   "version": "0.0.0",
   "exports": {
     ".": "./main.ts",
