@@ -32,9 +32,26 @@ import type {
   TraktOptions,
 } from "./types.ts";
 
+/**
+ * The main Trakt.tv API client for handling OAuth2 flows and token management.
+ *
+ * @example
+ * ```ts
+ * const client = new Trakt({
+ *   client_id: "YOUR_TRAKT_CLIENT_ID",
+ *   client_secret: "YOUR_TRAKT_CLIENT_SECRET"
+ * });
+ * ```
+ */
 export default class Trakt {
   private settings: TraktOptions;
   private auth: Auth;
+
+  /**
+   * Constructs a new {@link Trakt} client.
+   * @param settings Configuration options for Trakt.tv API access.
+   * @param auth Initial authentication object to restore session (optional).
+   */
   constructor(
     settings: TraktOptions,
     auth: Auth = {},
@@ -49,6 +66,16 @@ export default class Trakt {
     this.auth = auth;
   }
 
+  /**
+   * Generates an OAuth2 authorization URL for user consent.
+   * @returns The authorization URL to redirect the user.
+   *
+   * @example
+   * ```ts
+   * const url = client.getUrl();
+   * window.location.href = url;
+   * ```
+   */
   public getUrl(): string {
     this.auth.state = crypto.randomBytes(6).toString("hex");
     const baseUrl = this.settings.api_url!.replace(/api\W/, "");
@@ -57,6 +84,18 @@ export default class Trakt {
     }&state=${this.auth.state}`;
   }
 
+  /**
+   * Exchanges an authorization code for access and refresh tokens.
+   * @param code The authorization code returned from user consent redirect.
+   * @param state (Optional) State value to check for CSRF protection.
+   * @returns The OAuth {@link TokenResponse} object.
+   *
+   * @throws Error if the state does not match the CSRF token.
+   * @example
+   * ```ts
+   * const tokens = await client.exchangeCode("CODE_FROM_REDIRECT");
+   * ```
+   */
   public exchangeCode(code: string, state?: string): Promise<TokenResponse> {
     if (state && state !== this.auth.state) {
       throw new Error("Invalid CSRF (State)");
@@ -71,12 +110,31 @@ export default class Trakt {
     });
   }
 
+  /**
+   * Starts the OAuth2 Device Code flow.
+   * @returns A device code response used to direct the user to verify.
+   *
+   * @example
+   * ```ts
+   * const codes = await client.getCodes();
+   * console.log(`Go to ${codes.verification_url} and enter code: ${codes.user_code}`);
+   * ```
+   */
   public getCodes(): Promise<DeviceCodeResponse> {
     return this._deviceCode({
       client_id: this.settings.client_id,
     }, "code") as Promise<DeviceCodeResponse>;
   }
 
+  /**
+   * Refreshes the access token using the stored refresh token.
+   * @returns A new OAuth {@link TokenResponse} object.
+   *
+   * @example
+   * ```ts
+   * const refreshed = await client.refreshToken();
+   * ```
+   */
   public refreshToken(): Promise<TokenResponse> {
     return this._exchange({
       refresh_token: this.auth.refresh_token!,
@@ -87,6 +145,16 @@ export default class Trakt {
     });
   }
 
+  /**
+   * Import authentication tokens and optionally trigger a refresh if expired.
+   * @param token The {@link Auth} object to import.
+   * @returns The updated {@link Auth} object (possibly refreshed).
+   *
+   * @example
+   * ```ts
+   * await client.importToken({ access_token: "...", refresh_token: "...", expires: Date.now() + 86400_000 });
+   * ```
+   */
   public importToken(token: Auth): Promise<Auth> {
     this.auth.access_token = token.access_token;
     this.auth.expires = token.expires;
@@ -103,6 +171,15 @@ export default class Trakt {
     });
   }
 
+  /**
+   * Export the current authentication token info.
+   * @returns The current {@link Auth} object.
+   *
+   * @example
+   * ```ts
+   * const session = client.exportToken();
+   * ```
+   */
   public exportToken(): Auth {
     return {
       access_token: this.auth.access_token,
@@ -111,6 +188,15 @@ export default class Trakt {
     };
   }
 
+  /**
+   * Revokes the current access token and clears authentication state.
+   * @returns A promise that resolves when tokens are revoked.
+   *
+   * @example
+   * ```ts
+   * await client.revokeToken();
+   * ```
+   */
   public async revokeToken(): Promise<void> {
     if (this.auth.access_token) {
       await this._revoke();
