@@ -21,7 +21,7 @@ const trakt = new Trakt({
 
 describe("Trakt Authentication", () => {
   it("should generate OAuth URL", () => {
-    const url = trakt.get_url();
+    const url = trakt.getUrl();
     expect(url).toBeDefined();
     expect(url).toContain("https://trakt.tv/oauth/authorize");
     expect(url).toContain(`client_id=${clientId}`);
@@ -31,7 +31,7 @@ describe("Trakt Authentication", () => {
   });
 
   it("should get device codes", async () => {
-    const codes = await trakt.get_codes();
+    const codes = await trakt.getCodes();
     expect(codes).toBeDefined();
     expect(codes.device_code).toBeDefined();
     expect(codes.user_code).toBeDefined();
@@ -56,7 +56,7 @@ describe("Trakt Authentication", () => {
     };
 
     // Import the token
-    const exportedToken = await trakt.import_token(mockToken);
+    const exportedToken = await trakt.importToken(mockToken);
     // Check that the exported token matches the imported token
     expect(exportedToken).toBeDefined();
     expect(exportedToken.access_token).toBe(mockToken.access_token);
@@ -74,11 +74,11 @@ describe("Trakt Authentication", () => {
     };
 
     // Import the token
-    await trakt.import_token(mockToken);
+    await trakt.importToken(mockToken);
     // Revoke the token
     await trakt.revoke_token();
     // Check that the token has been revoked
-    const exportedToken = trakt.export_token();
+    const exportedToken = trakt.exportToken();
     expect(exportedToken.access_token).toBeUndefined();
     expect(exportedToken.refresh_token).toBeUndefined();
   });

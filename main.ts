@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 import ky from "ky";
 
-import type {Auth, DeviceCodeResponse, TokenResponse, TraktOptions,} from "./types.ts";
+import type {
+  Auth,
+  DeviceCodeResponse,
+  TokenResponse,
+  TraktOptions,
+} from "./types.ts";
 
 export default class Trakt {
   private settings: TraktOptions;
@@ -20,15 +25,15 @@ export default class Trakt {
     this.auth = auth;
   }
 
-  public get_url(): string {
+  public getUrl(): string {
     this.auth.state = crypto.randomBytes(6).toString("hex");
-    const base_url = this.settings.api_url!.replace(/api\W/, "");
-    return `${base_url}/oauth/authorize?response_type=code&client_id=${this.settings.client_id}&redirect_uri=${
+    const baseUrl = this.settings.api_url!.replace(/api\W/, "");
+    return `${baseUrl}/oauth/authorize?response_type=code&client_id=${this.settings.client_id}&redirect_uri=${
       this.settings.redirect_uri || "urn:ietf:wg:oauth:2.0:oob"
     }&state=${this.auth.state}`;
   }
 
-  public exchange_code(code: string, state?: string): Promise<TokenResponse> {
+  public exchangeCode(code: string, state?: string): Promise<TokenResponse> {
     if (state && state !== this.auth.state) {
       throw new Error("Invalid CSRF (State)");
     }
@@ -42,13 +47,13 @@ export default class Trakt {
     });
   }
 
-  public get_codes(): Promise<DeviceCodeResponse> {
-    return this._device_code({
+  public getCodes(): Promise<DeviceCodeResponse> {
+    return this._deviceCode({
       client_id: this.settings.client_id,
     }, "code") as Promise<DeviceCodeResponse>;
   }
 
-  public refresh_token(): Promise<TokenResponse> {
+  public refreshToken(): Promise<TokenResponse> {
     return this._exchange({
       refresh_token: this.auth.refresh_token!,
       client_id: this.settings.client_id,
@@ -58,23 +63,23 @@ export default class Trakt {
     });
   }
 
-  public import_token(token: Auth): Promise<Auth> {
+  public importToken(token: Auth): Promise<Auth> {
     this.auth.access_token = token.access_token;
     this.auth.expires = token.expires;
     this.auth.refresh_token = token.refresh_token;
 
     return new Promise((resolve, reject) => {
       if (token.expires && token.expires < Date.now()) {
-        this.refresh_token().then(() => resolve(this.export_token())).catch(
+        this.refreshToken().then(() => resolve(this.exportToken())).catch(
           reject,
         );
       } else {
-        resolve(this.export_token());
+        resolve(this.exportToken());
       }
     });
   }
 
-  public export_token(): Auth {
+  public exportToken(): Auth {
     return {
       access_token: this.auth.access_token,
       expires: this.auth.expires,
@@ -82,7 +87,7 @@ export default class Trakt {
     };
   }
 
-  public async revoke_token(): Promise<void> {
+  public async revokeToken(): Promise<void> {
     if (this.auth.access_token) {
       await this._revoke();
       this.auth = {};
@@ -105,7 +110,7 @@ export default class Trakt {
     return response;
   }
 
-  private _device_code(
+  private _deviceCode(
     params: Record<string, unknown>,
     type: "code" | "token",
   ): Promise<DeviceCodeResponse | TokenResponse> {
