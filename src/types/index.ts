@@ -98,3 +98,6 @@ export type DeviceCodeResponse = {
   /** Recommended polling interval (seconds). */
   interval: number;
 };
+
+export type MediaType = "movies" | "shows" | "seasons" | "episodes";
+export type CommentType = "all" | "reviews" | "shouts";

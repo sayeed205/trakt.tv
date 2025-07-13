@@ -27,8 +27,8 @@ import ky from "ky";
 
 import type {Options} from "npm:ky@1.8.1";
 
-import type {Auth, DeviceCodeResponse, TokenResponse, TraktOptions,} from "./types/index.ts";
-import {
+import type {Auth, CommentType, DeviceCodeResponse, MediaType, TokenResponse, TraktOptions,} from "./types/index.ts";
+import type {
   AnticipatedMovie,
   Movie,
   MovieAlias,
@@ -39,6 +39,7 @@ import {
   TrendingMovies,
   WatchedMovie,
 } from "./types/movies.ts";
+import type {User, UserCollection} from "./types/users.ts";
 
 /**
  * The main Trakt.tv API client for handling OAuth2 flows and token management.
@@ -53,24 +54,23 @@ import {
  */
 export default class Trakt {
   public movies = {
-    get: (id: string): Promise<Movie> =>
-      this._call<Movie>("get", `/movies/${id}`),
+    get: (id: string): Promise<Movie> => this._call("get", `/movies/${id}`),
     trending: (
       params?: { page?: number; limit?: number },
     ): Promise<TrendingMovies[]> =>
-      this._call<TrendingMovies[]>("get", "/movies/trending", params),
+      this._call("get", "/movies/trending", params),
     popular: (params?: { page?: number; limit?: number }): Promise<Movie[]> =>
-      this._call<Movie[]>("get", "/movies/popular", params),
+      this._call("get", "/movies/popular", params),
     anticipated: (
       params?: { page?: number; limit?: number },
     ): Promise<AnticipatedMovie[]> =>
-      this._call<AnticipatedMovie[]>("get", "/movies/anticipated", params),
+      this._call("get", "/movies/anticipated", params),
     watched: (params?: {
       period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
       page?: number;
       limit?: number;
     }): Promise<WatchedMovie[]> =>
-      this._call<WatchedMovie[]>(
+      this._call(
         "get",
         `/movies/watched/${params?.period || "weekly"}`,
         {
@@ -83,7 +83,7 @@ export default class Trakt {
       page?: number;
       limit?: number;
     }): Promise<PlayedMovie[]> =>
-      this._call<PlayedMovie[]>(
+      this._call(
         "get",
         `/movies/played/${params?.period || "weekly"}`,
         {
@@ -93,15 +93,14 @@ export default class Trakt {
       ),
     updates: (
       params: { start_date: string; page?: number; limit?: number },
-    ): Promise<MovieUpdates[]> =>
-      this._call<MovieUpdates[]>("get", "/movies/updates", params),
+    ): Promise<MovieUpdates[]> => this._call("get", "/movies/updates", params),
     aliases: (id: string): Promise<MovieAlias[]> =>
-      this._call<MovieAlias[]>("get", `/movies/${id}/aliases`),
+      this._call("get", `/movies/${id}/aliases`),
     releases: (params: {
       id: string;
       country?: string;
     }): Promise<MovieRelease[]> =>
-      this._call<MovieRelease[]>(
+      this._call(
         "get",
         `/movies/${params.id}/releases${
           params.country ? `/${params.country}` : ""
@@ -111,7 +110,7 @@ export default class Trakt {
       id: string;
       language?: string;
     }): Promise<MovieTranslation[]> =>
-      this._call<MovieTranslation[]>(
+      this._call(
         "get",
         `/movies/${params.id}/translations${
           params.language ? `/${params.language}` : ""
@@ -134,6 +133,71 @@ export default class Trakt {
     watching: (params: { id: string }) =>
       this._call("get", `/movies/${params.id}/watching`),
   };
+
+  public users = {
+    get: (id: string): Promise<User> => this._call("get", `/users/${id}`),
+    collection: (params: {
+      id: string;
+      type: "movies" | "shows";
+    }): Promise<UserCollection[]> =>
+      this._call("get", `/users/${params.id}/collection/${params.type}`),
+    comments: (params: {
+      id: string;
+      type: "all" | MediaType;
+      comment_type: CommentType;
+    }) =>
+      this._call(
+        "get",
+        `/users/${params.id}/comments/${params.type}/${params.comment_type}`,
+      ),
+    lists: (params: { id: string }) =>
+      this._call("get", `/users/${params.id}/lists`),
+    followers: (params: { id: string }) =>
+      this._call("get", `/users/${params.id}/followers`),
+    following: (params: { id: string }) =>
+      this._call("get", `/users/${params.id}/following`),
+    friends: (params: { id: string }) =>
+      this._call("get", `/users/${params.id}/friends`),
+    history: (params: {
+      id: string;
+      type: MediaType;
+      item_id?: string;
+      start_at?: string;
+      end_at?: string;
+    }) =>
+      this._call(
+        "get",
+        `/users/${params.id}/history${params.type ? `/${params.type}` : ""}${
+          params.item_id ? `/${params.item_id}` : ""
+        }?start_at=${params.start_at}&end_at=${params.end_at}`,
+      ),
+    ratings: (params: {
+      id: string;
+      type: MediaType;
+      rating?: number;
+    }) =>
+      this._call(
+        "get",
+        `/users/${params.id}/ratings/${params.type}${
+          params.rating ? `/${params.rating}` : ""
+        }`,
+      ),
+    watchlist: (params: {
+      id: string;
+      type: MediaType;
+    }) => this._call("get", `/users/${params.id}/watchlist/${params.type}`),
+    stats: (params: { id: string }) =>
+      this._call("get", `/users/${params.id}/stats`),
+    follow: (params: { id: string }) =>
+      this._call("post", `/users/${params.id}/follow`),
+    unfollow: (params: { id: string }) =>
+      this._call("delete", `/users/${params.id}/follow`),
+    approve: (params: { id: string }) =>
+      this._call("post", `/users/requests/${params.id}`),
+    deny: (params: { id: string }) =>
+      this._call("delete", `/users/requests/${params.id}`),
+  };
+
   private settings: TraktOptions;
   private auth: Auth;
 
