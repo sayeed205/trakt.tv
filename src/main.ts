@@ -1,3 +1,27 @@
+/**
+ * Trakt.tv TypeScript SDK – Auth flow and API access for Trakt.tv.
+ *
+ * This module provides a Trakt client class for authenticating with the Trakt.tv API,
+ * managing OAuth2 authorization, token refresh, and device code flows.
+ *
+ * @example
+ * ```ts
+ * import Trakt from "@hitarashi/trakt";
+ *
+ * const client = new Trakt({
+ *   client_id: "YOUR_TRAKT_CLIENT_ID",
+ *   client_secret: "YOUR_TRAKT_CLIENT_SECRET",
+ * });
+ *
+ * // Get Auth URL
+ * console.log(client.getUrl());
+ *
+ * // Exchange auth code
+ * await client.exchangeCode("CODE_FROM_REDIRECT");
+ * ```
+ *
+ * @module
+ */
 import crypto from "node:crypto";
 import ky from "ky";
 

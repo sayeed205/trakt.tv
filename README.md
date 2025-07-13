@@ -42,28 +42,24 @@ const client = new Trakt({
 
 ```typescript
 // 1. Redirect user to this URL
-+
 const url = client.getUrl();
-+console.log("Go to:", url);
-+
-    +// 2. Once redirected, exchange the code for tokens
-        +
+console.log("Go to:", url);
+
+// 2. Once redirected, exchange the code for tokens
 const tokens = await client.exchangeCode("CODE_FROM_REDIRECT");
 ```
 
 #### Device Code Flow
 
 ```typescript
-+
 const codes = await client.getCodes();
-+console.log(`Go to ${codes.verification_url} and enter code: ${codes.user_code}`);
-+// Poll for access tokens with client._deviceCode(..., 'token'), or expand as needed
+console.log(`Go to ${codes.verification_url} and enter code: ${codes.user_code}`);
+// Poll for access tokens with client._deviceCode(..., 'token'), or expand as needed
 ```
 
 ### Refreshing Token
 
 ```typescript
-+
 const refreshed = await client.refreshToken();
 ```
 
@@ -71,19 +67,10 @@ const refreshed = await client.refreshToken();
 
 ```typescript
 +await client.importToken({
-    + access_token
-:
-"...",
-    +refresh_token
-:
-"...",
-    +expires
-:
-1712345678901,
-    +
-})
-;
-+
+    access_token: "...",
+    refresh_token: "...",
+    expires: 1712345678901,
+});
 const exported = client.exportToken();
 ```
 
@@ -100,10 +87,7 @@ const exported = client.exportToken();
 ### Constructor
 
 ```typescript
-new Trakt(settings
-:
-TraktOptions, auth ? : Auth
-)
+new Trakt(settings, auth)
 ```
 
 - `settings`: Your Trakt.tv app credentials and client options.

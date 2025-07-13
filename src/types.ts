@@ -1,3 +1,19 @@
+/**
+ * Types for configuration, authentication, and API responses in the Trakt.tv SDK.
+ *
+ * @example
+ * ```ts
+ * import type { TraktOptions, Auth, TokenResponse, DeviceCodeResponse } from "@hitarashi/trakt/types";
+ *
+ * const options: TraktOptions = {
+ *   client_id: "CLIENT_ID",
+ *   client_secret: "SECRET",
+ * };
+ * ```
+ *
+ * @module
+ */
+
 export type TraktOptions = {
   client_id: string;
   client_secret: string;
