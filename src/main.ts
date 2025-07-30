@@ -39,7 +39,7 @@ import type {
   TrendingMovies,
   WatchedMovie,
 } from "./types/movies.ts";
-import type {User, UserCollection} from "./types/users.ts";
+import type {User, UserCollection, UserComment} from "./types/users.ts";
 
 /**
  * The main Trakt.tv API client for handling OAuth2 flows and token management.
@@ -145,7 +145,7 @@ export default class Trakt {
       id: string;
       type: "all" | MediaType;
       comment_type: CommentType;
-    }) =>
+    }): Promise<UserComment> =>
       this._call(
         "get",
         `/users/${params.id}/comments/${params.type}/${params.comment_type}`,

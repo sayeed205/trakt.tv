@@ -101,3 +101,26 @@ export type DeviceCodeResponse = {
 
 export type MediaType = "movies" | "shows" | "seasons" | "episodes";
 export type CommentType = "all" | "reviews" | "shouts";
+// Re-export movie types
+export type {
+  AnticipatedMovie, IDs,
+  Movie, MovieAlias,
+  MovieRelease,
+  MovieTranslation, MovieUpdates, PlayedMovie, TrendingMovies, WatchedMovie
+} from "./movies.ts";
+
+// Re-export user types
+export type {
+  CommentUser, User, UserCollection, UserComment, UserIDs, UserLists
+} from "./users.ts";
+
+// Re-export show types
+export type {
+  AnticipatedShow, Episode, PlayedShow, Season, Show, ShowAlias,
+  ShowTranslation, ShowUpdates, TrendingShow, WatchedShow
+} from "./shows.ts";
+
+// Re-export comment types
+export type {
+  CommentPostParams
+} from "./comments.ts";
