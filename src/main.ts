@@ -22,12 +22,15 @@
  *
  * @module
  */
-import type { Options } from "ky";
+import type {Options} from "ky";
 import ky from "ky";
 import crypto from "node:crypto";
 
 import type {
   Auth,
+  CalendarMovie,
+  CalendarParams,
+  CalendarShow,
   CommentType,
   DeviceCodeResponse,
   MediaType,
@@ -60,7 +63,7 @@ import type {
   TrendingShow,
   WatchedShow,
 } from "./types/shows.ts";
-import type { User, UserCollection, UserComment } from "./types/users.ts";
+import type {User, UserCollection, UserComment} from "./types/users.ts";
 
 /**
  * The main Trakt.tv API client for handling OAuth2 flows and token management.
@@ -307,6 +310,191 @@ export default class Trakt {
         `/search/${params.id_type}/${encodeURIComponent(params.id)}`,
         searchParams,
       );
+    },
+  };
+
+  public calendars = {
+    /**
+     * User-specific calendar endpoints for authenticated users.
+     */
+    my: {
+      /**
+       * Get shows on the user's calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar shows
+       */
+      shows: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call("get", `/calendars/my/shows/${startDate}/${days}`);
+      },
+
+      /**
+       * Get new shows on the user's calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar shows
+       */
+      newShows: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/my/shows/new/${startDate}/${days}`,
+        );
+      },
+
+      /**
+       * Get season premieres on the user's calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar shows
+       */
+      seasonPremieres: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/my/shows/premieres/${startDate}/${days}`,
+        );
+      },
+
+      /**
+       * Get season finales on the user's calendar.
+       * @param params Optional parameter
+       * @example
+       * ```ts
+       * finales({startDate: "2014-09-01",days: 7})
+       * ```
+       */
+      finales: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/my/shows/finales/${startDate}/${days}`,
+        );
+      },
+
+      /**
+       * Get movies on the user's calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar movies
+       */
+      movies: (params?: CalendarParams): Promise<CalendarMovie[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call("get", `/calendars/my/movies/${startDate}/${days}`);
+      },
+
+      streaming: (params?: CalendarParams): Promise<CalendarMovie[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/my/streaming/${startDate}/${days}`,
+        );
+      },
+
+      dvd: (params?: CalendarParams): Promise<CalendarMovie[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/my/dvd/${startDate}/${days}`,
+        );
+      },
+    },
+
+    /**
+     * Public calendar endpoints for all users.
+     */
+    all: {
+      /**
+       * Get all shows calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar shows
+       */
+      shows: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call("get", `/calendars/all/shows/${startDate}/${days}`);
+      },
+
+      /**
+       * Get all new shows calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar shows
+       */
+      newShows: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/all/shows/new/${startDate}/${days}`,
+        );
+      },
+
+      /**
+       * Get all season premieres calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar shows
+       */
+      seasonPremieres: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/all/shows/premieres/${startDate}/${days}`,
+        );
+      },
+
+      finale: (params?: CalendarParams): Promise<CalendarShow[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/all/shows/finale/${startDate}/${days}`,
+        );
+      },
+
+      /**
+       * Get all movies calendar.
+       * @param params Optional parameters for date range and pagination
+       * @returns Promise resolving to array of calendar movies
+       */
+      movies: (params?: CalendarParams): Promise<CalendarMovie[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call("get", `/calendars/all/movies/${startDate}/${days}`);
+      },
+
+      streaming: (params?: CalendarParams): Promise<CalendarMovie[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call(
+          "get",
+          `/calendars/all/streaming/${startDate}/${days}`,
+        );
+      },
+
+      dvd: (params?: CalendarParams): Promise<CalendarMovie[]> => {
+        const startDate = params?.startDate ?? formatDate(new Date());
+        const days = params?.days ?? 7;
+
+        return this._call("get", `/calendars/all/dvd/${startDate}/${days}`);
+      },
     },
   };
 
@@ -604,4 +792,11 @@ export default class Trakt {
       },
     }).json();
   }
+}
+
+function formatDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }

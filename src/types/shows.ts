@@ -1,4 +1,10 @@
-import type { IDs } from "./movies.ts";
+export type IDs = {
+  trakt: string;
+  slug: string;
+  tvdb: string;
+  imdb: string;
+  tmdb: number;
+};
 
 /**
  * Core show type representing a TV show from the Trakt.tv API.
@@ -54,7 +60,7 @@ export type Episode = {
   season: number;
   number: number;
   title: string;
-  ids: IDs;
+  ids: Omit<IDs, "slug">;
   number_abs?: number;
   overview?: string;
   rating?: number;
