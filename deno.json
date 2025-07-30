@@ -16,9 +16,6 @@
       "tests"
     ]
   },
-  "exclude": [
-    "tests"
-  ],
   "tasks": {
     "dev": "deno run --watch src/main.ts"
   },

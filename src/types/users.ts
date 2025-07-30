@@ -1,5 +1,5 @@
-import type {Movie} from "./movies.ts";
-import type {MediaType} from "./index.ts";
+import type { Movie } from "./movies.ts";
+import type { MediaType } from "./index.ts";
 
 export type User = {
   username: string;
@@ -52,7 +52,7 @@ export type UserComment = {
 export type UserLists = {
   "name": "Star Wars in machete order";
   "description":
-      "Next time you want to introduce someone to Star Wars for the first time, watch the films with them in this order: IV, V, II, III, VI.";
+    "Next time you want to introduce someone to Star Wars for the first time, watch the films with them in this order: IV, V, II, III, VI.";
   "privacy": "public";
   "share_link": "https://trakt.tv/lists/55";
   "type": "personal";

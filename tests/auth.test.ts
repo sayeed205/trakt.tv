@@ -1,11 +1,11 @@
+import { expect } from "jsr:@std/expect";
+import { describe, it } from "jsr:@std/testing/bdd";
 import process from "node:process";
-import {describe, it} from "jsr:@std/testing/bdd";
-import {expect} from "jsr:@std/expect";
 
-import Trakt from "../main.ts";
+import Trakt from "../src/main.ts";
 
-const clientId = process.env.TRAKT_CLIENT_ID;
-const clientSecret = process.env.TRAKT_CLIENT_SECRET;
+const clientId = Deno.env.get("TRAKT_CLIENT_ID");
+const clientSecret = Deno.env.get("TRAKT_CLIENT_SECRET");
 
 if (!clientId || !clientSecret) {
   console.error(
@@ -76,7 +76,7 @@ describe("Trakt Authentication", () => {
     // Import the token
     await trakt.importToken(mockToken);
     // Revoke the token
-    await trakt.revoke_token();
+    await trakt.revokeToken();
     // Check that the token has been revoked
     const exportedToken = trakt.exportToken();
     expect(exportedToken.access_token).toBeUndefined();
