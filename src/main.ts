@@ -22,89 +22,89 @@
  *
  * @module
  */
-import type {Options} from "ky";
+import type { Options } from "ky";
 import ky from "ky";
 import crypto from "node:crypto";
 
 import type {
-    AddListItemsParams,
-    Auth,
-    CalendarMovie,
-    CalendarParams,
-    CalendarShow,
-    Certification,
-    CollectionItem,
-    Comment,
-    CommentPostParams,
-    CommentReplyParams,
-    CommentType,
-    CommentUpdateParams,
-    CommentUpdatesParams,
-    Country,
-    CreateListParams,
-    DeviceCodeResponse,
-    Genre,
-    GetListItemsParams,
-    GetListsParams,
-    HistoryItem,
-    Language,
-    List,
-    ListItem,
-    ListItemResponse,
-    MediaType,
-    Network,
-    PlaybackParams,
-    PlaybackProgress,
-    RatedItem,
-    RecentCommentsParams,
-    RemoveListItemsParams,
-    ReorderListItemsParams,
-    SearchIdParams,
-    SearchResult,
-    SearchTextParams,
-    SyncParams,
-    SyncResponse,
-    TokenResponse,
-    TraktOptions,
-    TrendingCommentsParams,
-    UpdateListParams,
-    WatchedItem,
-    WatchlistItem,
+  AddListItemsParams,
+  Auth,
+  CalendarMovie,
+  CalendarParams,
+  CalendarShow,
+  Certification,
+  CollectionItem,
+  Comment,
+  CommentPostParams,
+  CommentReplyParams,
+  CommentType,
+  CommentUpdateParams,
+  CommentUpdatesParams,
+  Country,
+  CreateListParams,
+  DeviceCodeResponse,
+  Genre,
+  GetListItemsParams,
+  GetListsParams,
+  HistoryItem,
+  Language,
+  List,
+  ListItem,
+  ListItemResponse,
+  MediaType,
+  Network,
+  PlaybackParams,
+  PlaybackProgress,
+  RatedItem,
+  RecentCommentsParams,
+  RemoveListItemsParams,
+  ReorderListItemsParams,
+  SearchIdParams,
+  SearchResult,
+  SearchTextParams,
+  SyncParams,
+  SyncResponse,
+  TokenResponse,
+  TraktOptions,
+  TrendingCommentsParams,
+  UpdateListParams,
+  WatchedItem,
+  WatchlistItem,
 } from "./types/index.ts";
 import type {
-    AnticipatedMovie,
-    BoxOfficeMovie,
-    Movie,
-    MovieAlias,
-    MovieRelease,
-    MovieTranslation,
-    MovieUpdates,
-    PlayedMovie,
-    TrendingMovies,
-    WatchedMovie,
+  AnticipatedMovie,
+  BoxOfficeMovie,
+  Movie,
+  MovieAlias,
+  MovieRelease,
+  MovieTranslation,
+  MovieUpdates,
+  PlayedMovie,
+  TrendingMovies,
+  WatchedMovie,
 } from "./types/movies.ts";
 import type {
-    AnticipatedShow,
-    Episode,
-    PlayedShow,
-    Season,
-    Show,
-    ShowAlias,
-    ShowTranslation,
-    ShowUpdates,
-    TrendingShow,
-    WatchedShow,
+  AnticipatedShow,
+  Episode,
+  PlayedShow,
+  Season,
+  Show,
+  ShowAlias,
+  ShowTranslation,
+  ShowUpdates,
+  TrendingShow,
+  WatchedShow,
 } from "./types/shows.ts";
-import {CollectionType} from "./types/sync.ts";
+import { CollectionType } from "./types/sync.ts";
 import type {
-    FollowRequest,
-    HiddenItem,
-    Like,
-    User,
-    UserCollection,
-    UserComment,
-    UserProfile,
-    UserSettings,
+  FollowRequest,
+  HiddenItem,
+  Like,
+  User,
+  UserCollection,
+  UserComment,
+  UserProfile,
+  UserSettings,
 } from "./types/users.ts";
 
 /**
@@ -121,45 +121,43 @@ import type {
 export default class Trakt {
   public movies = {
     get: (id: string): Promise<Movie> => this._call("get", `/movies/${id}`),
-    trending: (
-      params?: { page?: number; limit?: number },
-    ): Promise<TrendingMovies[]> =>
+    trending: (params?: {
+      page?: number;
+      limit?: number;
+    }): Promise<TrendingMovies[]> =>
       this._call("get", "/movies/trending", params),
-    popular: (params?: { page?: number; limit?: number }): Promise<Movie[]> =>
-      this._call("get", "/movies/popular", params),
-    anticipated: (
-      params?: { page?: number; limit?: number },
-    ): Promise<AnticipatedMovie[]> =>
+    popular: (params?: {
+      page?: number;
+      limit?: number;
+    }): Promise<Movie[]> => this._call("get", "/movies/popular", params),
+    anticipated: (params?: {
+      page?: number;
+      limit?: number;
+    }): Promise<AnticipatedMovie[]> =>
       this._call("get", "/movies/anticipated", params),
     watched: (params?: {
       period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
       page?: number;
       limit?: number;
     }): Promise<WatchedMovie[]> =>
-      this._call(
-        "get",
-        `/movies/watched/${params?.period || "weekly"}`,
-        {
-          page: params?.page,
-          limit: params?.limit,
-        },
-      ),
+      this._call("get", `/movies/watched/${params?.period || "weekly"}`, {
+        page: params?.page,
+        limit: params?.limit,
+      }),
     played: (params?: {
       period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
       page?: number;
       limit?: number;
     }): Promise<PlayedMovie[]> =>
-      this._call(
-        "get",
-        `/movies/played/${params?.period || "weekly"}`,
-        {
-          page: params?.page,
-          limit: params?.limit,
-        },
-      ),
-    updates: (
-      params: { start_date: string; page?: number; limit?: number },
-    ): Promise<MovieUpdates[]> => this._call("get", "/movies/updates", params),
+      this._call("get", `/movies/played/${params?.period || "weekly"}`, {
+        page: params?.page,
+        limit: params?.limit,
+      }),
+    updates: (params: {
+      start_date: string;
+      page?: number;
+      limit?: number;
+    }): Promise<MovieUpdates[]> => this._call("get", "/movies/updates", params),
     aliases: (id: string): Promise<MovieAlias[]> =>
       this._call("get", `/movies/${id}/aliases`),
     releases: (params: {
@@ -198,9 +196,10 @@ export default class Trakt {
       this._call("get", `/movies/${params.id}/studios`),
     watching: (params: { id: string }) =>
       this._call("get", `/movies/${params.id}/watching`),
-    boxoffice: (
-      params?: { page?: number; limit?: number },
-    ): Promise<BoxOfficeMovie[]> =>
+    boxoffice: (params?: {
+      page?: number;
+      limit?: number;
+    }): Promise<BoxOfficeMovie[]> =>
       this._call("get", "/movies/boxoffice", params),
     certifications: (params: { id: string }): Promise<Certification[]> =>
       this._call("get", `/movies/${params.id}/certifications`),
@@ -208,9 +207,11 @@ export default class Trakt {
       this._call("get", `/movies/${params.id}/languages`),
     genres: (params: { id: string }): Promise<Genre[]> =>
       this._call("get", `/movies/${params.id}/genres`),
-    similar: (
-      params: { id: string; page?: number; limit?: number },
-    ): Promise<Movie[]> =>
+    similar: (params: {
+      id: string;
+      page?: number;
+      limit?: number;
+    }): Promise<Movie[]> =>
       this._call("get", `/movies/${params.id}/similar`, {
         page: params.page,
         limit: params.limit,
@@ -220,44 +221,42 @@ export default class Trakt {
   public shows = {
     // Basic show operations
     get: (id: string): Promise<Show> => this._call("get", `/shows/${id}`),
-    trending: (
-      params?: { page?: number; limit?: number },
-    ): Promise<TrendingShow[]> => this._call("get", "/shows/trending", params),
-    popular: (params?: { page?: number; limit?: number }): Promise<Show[]> =>
-      this._call("get", "/shows/popular", params),
-    anticipated: (
-      params?: { page?: number; limit?: number },
-    ): Promise<AnticipatedShow[]> =>
+    trending: (params?: {
+      page?: number;
+      limit?: number;
+    }): Promise<TrendingShow[]> => this._call("get", "/shows/trending", params),
+    popular: (params?: {
+      page?: number;
+      limit?: number;
+    }): Promise<Show[]> => this._call("get", "/shows/popular", params),
+    anticipated: (params?: {
+      page?: number;
+      limit?: number;
+    }): Promise<AnticipatedShow[]> =>
       this._call("get", "/shows/anticipated", params),
     watched: (params?: {
       period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
       page?: number;
       limit?: number;
     }): Promise<WatchedShow[]> =>
-      this._call(
-        "get",
-        `/shows/watched/${params?.period || "weekly"}`,
-        {
-          page: params?.page,
-          limit: params?.limit,
-        },
-      ),
+      this._call("get", `/shows/watched/${params?.period || "weekly"}`, {
+        page: params?.page,
+        limit: params?.limit,
+      }),
     played: (params?: {
       period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
       page?: number;
       limit?: number;
     }): Promise<PlayedShow[]> =>
-      this._call(
-        "get",
-        `/shows/played/${params?.period || "weekly"}`,
-        {
-          page: params?.page,
-          limit: params?.limit,
-        },
-      ),
-    updates: (
-      params: { start_date: string; page?: number; limit?: number },
-    ): Promise<ShowUpdates[]> => this._call("get", "/shows/updates", params),
+      this._call("get", `/shows/played/${params?.period || "weekly"}`, {
+        page: params?.page,
+        limit: params?.limit,
+      }),
+    updates: (params: {
+      start_date: string;
+      page?: number;
+      limit?: number;
+    }): Promise<ShowUpdates[]> => this._call("get", "/shows/updates", params),
 
     // Show metadata endpoints
     aliases: (id: string): Promise<ShowAlias[]> =>
@@ -288,7 +287,10 @@ export default class Trakt {
       this._call("get", `/shows/${params.id}/watching`),
 
     // Seasons and episodes endpoints
-    seasons: (params: { id: string; extended?: string }): Promise<Season[]> =>
+    seasons: (params: {
+      id: string;
+      extended?: string;
+    }): Promise<Season[]> =>
       this._call("get", `/shows/${params.id}/seasons`, {
         extended: params.extended,
       }),
@@ -386,7 +388,10 @@ export default class Trakt {
         const startDate = params?.startDate ?? formatDate(new Date());
         const days = params?.days ?? 7;
 
-        return this._call("get", `/calendars/my/shows/${startDate}/${days}`);
+        return this._call(
+          "get",
+          `/calendars/my/shows/${startDate}/${days}`,
+        );
       },
 
       /**
@@ -409,7 +414,9 @@ export default class Trakt {
        * @param params Optional parameters for date range and pagination
        * @returns Promise resolving to array of calendar shows
        */
-      seasonPremieres: (params?: CalendarParams): Promise<CalendarShow[]> => {
+      seasonPremieres: (
+        params?: CalendarParams,
+      ): Promise<CalendarShow[]> => {
         const startDate = params?.startDate ?? formatDate(new Date());
         const days = params?.days ?? 7;
 
@@ -446,7 +453,10 @@ export default class Trakt {
         const startDate = params?.startDate ?? formatDate(new Date());
         const days = params?.days ?? 7;
 
-        return this._call("get", `/calendars/my/movies/${startDate}/${days}`);
+        return this._call(
+          "get",
+          `/calendars/my/movies/${startDate}/${days}`,
+        );
       },
 
       streaming: (params?: CalendarParams): Promise<CalendarMovie[]> => {
@@ -483,7 +493,10 @@ export default class Trakt {
         const startDate = params?.startDate ?? formatDate(new Date());
         const days = params?.days ?? 7;
 
-        return this._call("get", `/calendars/all/shows/${startDate}/${days}`);
+        return this._call(
+          "get",
+          `/calendars/all/shows/${startDate}/${days}`,
+        );
       },
 
       /**
@@ -506,7 +519,9 @@ export default class Trakt {
        * @param params Optional parameters for date range and pagination
        * @returns Promise resolving to array of calendar shows
        */
-      seasonPremieres: (params?: CalendarParams): Promise<CalendarShow[]> => {
+      seasonPremieres: (
+        params?: CalendarParams,
+      ): Promise<CalendarShow[]> => {
         const startDate = params?.startDate ?? formatDate(new Date());
         const days = params?.days ?? 7;
 
@@ -535,7 +550,10 @@ export default class Trakt {
         const startDate = params?.startDate ?? formatDate(new Date());
         const days = params?.days ?? 7;
 
-        return this._call("get", `/calendars/all/movies/${startDate}/${days}`);
+        return this._call(
+          "get",
+          `/calendars/all/movies/${startDate}/${days}`,
+        );
       },
 
       streaming: (params?: CalendarParams): Promise<CalendarMovie[]> => {
@@ -552,7 +570,10 @@ export default class Trakt {
         const startDate = params?.startDate ?? formatDate(new Date());
         const days = params?.days ?? 7;
 
-        return this._call("get", `/calendars/all/dvd/${startDate}/${days}`);
+        return this._call(
+          "get",
+          `/calendars/all/dvd/${startDate}/${days}`,
+        );
       },
     },
   };
@@ -594,21 +615,15 @@ export default class Trakt {
           params.item_id ? `/${params.item_id}` : ""
         }?start_at=${params.start_at}&end_at=${params.end_at}`,
       ),
-    ratings: (params: {
-      id: string;
-      type: MediaType;
-      rating?: number;
-    }) =>
+    ratings: (params: { id: string; type: MediaType; rating?: number }) =>
       this._call(
         "get",
         `/users/${params.id}/ratings/${params.type}${
           params.rating ? `/${params.rating}` : ""
         }`,
       ),
-    watchlist: (params: {
-      id: string;
-      type: MediaType;
-    }) => this._call("get", `/users/${params.id}/watchlist/${params.type}`),
+    watchlist: (params: { id: string; type: MediaType }) =>
+      this._call("get", `/users/${params.id}/watchlist/${params.type}`),
     stats: (params: { id: string }) =>
       this._call("get", `/users/${params.id}/stats`),
     follow: (params: { id: string }) =>
@@ -622,8 +637,9 @@ export default class Trakt {
 
     // User settings and profile management
     settings: (): Promise<UserSettings> => this._call("get", "/users/settings"),
-    updateSettings: (params: Partial<UserSettings>): Promise<UserSettings> =>
-      this._call("post", "/users/settings", params),
+    updateSettings: (
+      params: Partial<UserSettings>,
+    ): Promise<UserSettings> => this._call("post", "/users/settings", params),
     profile: (): Promise<UserProfile> => this._call("get", "/users/me"),
     updateProfile: (params: Partial<UserProfile>): Promise<UserProfile> =>
       this._call("post", "/users/me", params),
@@ -642,9 +658,11 @@ export default class Trakt {
     ): Promise<HiddenItem[]> => this._call("get", `/users/hidden/${section}`),
 
     // User likes
-    likes: (
-      params?: { type?: "comments" | "lists"; page?: number; limit?: number },
-    ): Promise<Like[]> => {
+    likes: (params?: {
+      type?: "comments" | "lists";
+      page?: number;
+      limit?: number;
+    }): Promise<Like[]> => {
       const searchParams: Record<string, unknown> = {};
       if (params?.type) searchParams.type = params.type;
       if (params?.page) searchParams.page = params.page;
@@ -831,7 +849,9 @@ export default class Trakt {
        * @param type The media type to retrieve (movies or shows)
        * @returns Promise resolving to array of collection items
        */
-      get: <T extends CollectionType>(type: T): Promise<CollectionItem<T>[]> =>
+      get: <T extends CollectionType>(
+        type: T,
+      ): Promise<CollectionItem<T>[]> =>
         this._call("get", `/sync/collection/${type}`),
 
       /**
@@ -1086,7 +1106,10 @@ export default class Trakt {
      * @param params Optional parameters for filtering and pagination
      * @returns Promise resolving to array of list items
      */
-    items: (id: string, params?: GetListItemsParams): Promise<ListItem[]> => {
+    items: (
+      id: string,
+      params?: GetListItemsParams,
+    ): Promise<ListItem[]> => {
       const searchParams: Record<string, unknown> = {};
       if (params?.type) searchParams.type = params.type;
       if (params?.extended) searchParams.extended = params.extended;
@@ -1288,7 +1311,9 @@ export default class Trakt {
      */
     trending: (params?: TrendingCommentsParams): Promise<Comment[]> => {
       const searchParams: Record<string, unknown> = {};
-      if (params?.comment_type) searchParams.comment_type = params.comment_type;
+      if (params?.comment_type) {
+        searchParams.comment_type = params.comment_type;
+      }
       if (params?.type) searchParams.type = params.type;
       if (params?.include_replies !== undefined) {
         searchParams.include_replies = params.include_replies;
@@ -1306,7 +1331,9 @@ export default class Trakt {
      */
     recent: (params?: RecentCommentsParams): Promise<Comment[]> => {
       const searchParams: Record<string, unknown> = {};
-      if (params?.comment_type) searchParams.comment_type = params.comment_type;
+      if (params?.comment_type) {
+        searchParams.comment_type = params.comment_type;
+      }
       if (params?.type) searchParams.type = params.type;
       if (params?.include_replies !== undefined) {
         searchParams.include_replies = params.include_replies;
@@ -1324,7 +1351,9 @@ export default class Trakt {
      */
     updates: (params?: CommentUpdatesParams): Promise<Comment[]> => {
       const searchParams: Record<string, unknown> = {};
-      if (params?.comment_type) searchParams.comment_type = params.comment_type;
+      if (params?.comment_type) {
+        searchParams.comment_type = params.comment_type;
+      }
       if (params?.type) searchParams.type = params.type;
       if (params?.include_replies !== undefined) {
         searchParams.include_replies = params.include_replies;
@@ -1410,10 +1439,7 @@ export default class Trakt {
    * @param settings Configuration options for Trakt.tv API access.
    * @param auth Initial authentication object to restore session (optional).
    */
-  constructor(
-    settings: TraktOptions,
-    auth: Auth = {},
-  ) {
+  constructor(settings: TraktOptions, auth: Auth = {}) {
     this.settings = {
       ...settings,
       api_url: "https://api.trakt.tv",
@@ -1485,9 +1511,12 @@ export default class Trakt {
    * ```
    */
   public getCodes(): Promise<DeviceCodeResponse> {
-    return this._deviceCode({
-      client_id: this.settings.client_id,
-    }, "code") as Promise<DeviceCodeResponse>;
+    return this._deviceCode(
+      {
+        client_id: this.settings.client_id,
+      },
+      "code",
+    ) as Promise<DeviceCodeResponse>;
   }
 
   /**
@@ -1526,9 +1555,9 @@ export default class Trakt {
 
     return new Promise((resolve, reject) => {
       if (token.expires && token.expires < Date.now()) {
-        this.refreshToken().then(() => resolve(this.exportToken())).catch(
-          reject,
-        );
+        this.refreshToken()
+          .then(() => resolve(this.exportToken()))
+          .catch(reject);
       } else {
         resolve(this.exportToken());
       }
@@ -1588,7 +1617,7 @@ export default class Trakt {
       method,
       headers,
       searchParams: method === "get"
-        ? params as Record<string, string | number | boolean>
+        ? (params as Record<string, string | number | boolean>)
         : undefined,
       json: method !== "get" ? params : undefined,
     };
@@ -1599,13 +1628,15 @@ export default class Trakt {
   private async _exchange(
     params: Record<string, unknown>,
   ): Promise<TokenResponse> {
-    const response = await ky.post(`${this.settings.api_url}/oauth/token`, {
-      headers: {
-        "User-Agent": this.settings.user_agent!,
-        "Content-Type": "application/json",
-      },
-      json: params,
-    }).json<TokenResponse>();
+    const response = await ky
+      .post(`${this.settings.api_url}/oauth/token`, {
+        headers: {
+          "User-Agent": this.settings.user_agent!,
+          "Content-Type": "application/json",
+        },
+        json: params,
+      })
+      .json<TokenResponse>();
     this.auth.refresh_token = response.refresh_token;
     this.auth.access_token = response.access_token;
     this.auth.expires = (response.created_at + response.expires_in) * 1000;
@@ -1616,27 +1647,31 @@ export default class Trakt {
     params: Record<string, unknown>,
     type: "code" | "token",
   ): Promise<DeviceCodeResponse | TokenResponse> {
-    return ky.post(`${this.settings.api_url}/oauth/device/${type}`, {
-      headers: {
-        "User-Agent": this.settings.user_agent!,
-        "Content-Type": "application/json",
-      },
-      json: params,
-    }).json<DeviceCodeResponse | TokenResponse>();
+    return ky
+      .post(`${this.settings.api_url}/oauth/device/${type}`, {
+        headers: {
+          "User-Agent": this.settings.user_agent!,
+          "Content-Type": "application/json",
+        },
+        json: params,
+      })
+      .json<DeviceCodeResponse | TokenResponse>();
   }
 
   private async _revoke(): Promise<void> {
-    await ky.post(`${this.settings.api_url}/oauth/revoke`, {
-      headers: {
-        "User-Agent": this.settings.user_agent!,
-        "Content-Type": "application/json",
-      },
-      json: {
-        token: this.auth.access_token,
-        client_id: this.settings.client_id,
-        client_secret: this.settings.client_secret,
-      },
-    }).json();
+    await ky
+      .post(`${this.settings.api_url}/oauth/revoke`, {
+        headers: {
+          "User-Agent": this.settings.user_agent!,
+          "Content-Type": "application/json",
+        },
+        json: {
+          token: this.auth.access_token,
+          client_id: this.settings.client_id,
+          client_secret: this.settings.client_secret,
+        },
+      })
+      .json();
   }
 }
 

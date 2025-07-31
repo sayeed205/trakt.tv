@@ -101,149 +101,148 @@ export type DeviceCodeResponse = {
 
 // Re-export shared types
 export type {
-    BaseParams,
-    CommentType,
-    DateRangeParams,
-    ExtendedInfo,
-    ExtendedParams,
-    IDs,
-    MediaType,
-    PaginatedResponse,
-    PaginationParams,
-    PrivacyLevel,
-    Rating,
-    SortDirection,
-    Stats,
-    Timestamp,
-    TraktError
+  BaseParams,
+  CommentType,
+  DateRangeParams,
+  ExtendedInfo,
+  ExtendedParams,
+  IDs,
+  MediaType,
+  PaginatedResponse,
+  PaginationParams,
+  PrivacyLevel,
+  Rating,
+  SortDirection,
+  Stats,
+  Timestamp,
+  TraktError,
 } from "./shared.ts";
 // ============================================================================
 // MOVIES API SECTION
 // ============================================================================
 export type {
-    AnticipatedMovie,
-    BoxOfficeMovie,
-    Movie,
-    MovieAlias,
-    MovieRelease,
-    MovieTranslation,
-    MovieUpdates,
-    PlayedMovie,
-    TrendingMovies,
-    WatchedMovie
+  AnticipatedMovie,
+  BoxOfficeMovie,
+  Movie,
+  MovieAlias,
+  MovieRelease,
+  MovieTranslation,
+  MovieUpdates,
+  PlayedMovie,
+  TrendingMovies,
+  WatchedMovie,
 } from "./movies.ts";
 
 // ============================================================================
 // SHOWS API SECTION
 // ============================================================================
 export type {
-    AnticipatedShow,
-    Episode,
-    PlayedShow,
-    Season,
-    Show,
-    ShowAlias,
-    ShowTranslation,
-    ShowUpdates,
-    TrendingShow,
-    WatchedShow
+  AnticipatedShow,
+  Episode,
+  PlayedShow,
+  Season,
+  Show,
+  ShowAlias,
+  ShowTranslation,
+  ShowUpdates,
+  TrendingShow,
+  WatchedShow,
 } from "./shows.ts";
 
 // ============================================================================
 // SEARCH API SECTION
 // ============================================================================
 export type {
-    List,
-    Person,
-    SearchIdParams,
-    SearchResult,
-    SearchTextParams
+  List,
+  Person,
+  SearchIdParams,
+  SearchResult,
+  SearchTextParams,
 } from "./search.ts";
 
 // ============================================================================
 // CALENDAR API SECTION
 // ============================================================================
 export type {
-    CalendarMovie,
-    CalendarParams,
-    CalendarShow
+  CalendarMovie,
+  CalendarParams,
+  CalendarShow,
 } from "./calendar.ts";
 
 // ============================================================================
 // SYNC API SECTION
 // ============================================================================
 export type {
-    CollectionItem,
-    CollectionType,
-    HistoryItem,
-    PlaybackParams,
-    PlaybackProgress,
-    RatedItem,
-    SyncEpisode,
-    SyncItem,
-    SyncParams,
-    SyncResponse,
-    SyncSeason,
-    WatchedEpisode,
-    WatchedItem,
-    WatchedSeason,
-    WatchlistItem
+  CollectionItem,
+  CollectionType,
+  HistoryItem,
+  PlaybackParams,
+  PlaybackProgress,
+  RatedItem,
+  SyncEpisode,
+  SyncItem,
+  SyncParams,
+  SyncResponse,
+  SyncSeason,
+  WatchedEpisode,
+  WatchedItem,
+  WatchedSeason,
+  WatchlistItem,
 } from "./sync.ts";
 
 // ============================================================================
 // LISTS API SECTION
 // ============================================================================
 export type {
-    AddListItemsParams,
-    CreateListParams,
-    GetListItemsParams,
-    GetListsParams,
-    ListItem,
-    ListItemResponse,
-    RemoveListItemsParams,
-    ReorderListItemsParams,
-    UpdateListParams
+  AddListItemsParams,
+  CreateListParams,
+  GetListItemsParams,
+  GetListsParams,
+  ListItem,
+  ListItemResponse,
+  RemoveListItemsParams,
+  ReorderListItemsParams,
+  UpdateListParams,
 } from "./lists.ts";
 
 // ============================================================================
 // COMMENTS API SECTION
 // ============================================================================
 export type {
-    Comment,
-    CommentPostParams,
-    CommentReplyParams,
-    CommentUpdateParams,
-    CommentUpdatesParams,
-    GetCommentsParams,
-    RecentCommentsParams,
-    TrendingCommentsParams
+  Comment,
+  CommentPostParams,
+  CommentReplyParams,
+  CommentUpdateParams,
+  CommentUpdatesParams,
+  GetCommentsParams,
+  RecentCommentsParams,
+  TrendingCommentsParams,
 } from "./comments.ts";
 
 // ============================================================================
 // USERS API SECTION
 // ============================================================================
 export type {
-    CommentUser,
-    FollowRequest,
-    HiddenItem,
-    Like,
-    User,
-    UserCollection,
-    UserComment,
-    UserIDs,
-    UserLists,
-    UserProfile,
-    UserSettings
+  CommentUser,
+  FollowRequest,
+  HiddenItem,
+  Like,
+  User,
+  UserCollection,
+  UserComment,
+  UserIDs,
+  UserLists,
+  UserProfile,
+  UserSettings,
 } from "./users.ts";
 
 // ============================================================================
 // METADATA API SECTION
 // ============================================================================
 export type {
-    Certification,
-    Country,
-    Genre,
-    Language,
-    Network
+  Certification,
+  Country,
+  Genre,
+  Language,
+  Network,
 } from "./metadata.ts";
-

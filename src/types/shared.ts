@@ -1,6 +1,6 @@
 /**
  * Shared types used across multiple Trakt.tv API endpoints.
- * 
+ *
  * This module contains common types, interfaces, and enums that are reused
  * throughout the API client to maintain consistency and reduce duplication.
  *
