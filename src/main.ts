@@ -27,60 +27,73 @@ import ky from "ky";
 import crypto from "node:crypto";
 
 import type {
-  AddListItemsParams,
-  Auth,
-  CalendarMovie,
-  CalendarParams,
-  CalendarShow,
-  CollectionItem,
-  CommentType,
-  CreateListParams,
-  DeviceCodeResponse,
-  GetListItemsParams,
-  GetListsParams,
-  HistoryItem,
-  List,
-  ListItem,
-  ListItemResponse,
-  MediaType,
-  PlaybackParams,
-  PlaybackProgress,
-  RatedItem,
-  RemoveListItemsParams,
-  ReorderListItemsParams,
-  SearchIdParams,
-  SearchResult,
-  SearchTextParams,
-  SyncParams,
-  SyncResponse,
-  TokenResponse,
-  TraktOptions,
-  UpdateListParams,
-  WatchedItem,
-  WatchlistItem,
+    AddListItemsParams,
+    Auth,
+    CalendarMovie,
+    CalendarParams,
+    CalendarShow,
+    Certification,
+    CollectionItem,
+    Comment,
+    CommentPostParams,
+    CommentReplyParams,
+    CommentType,
+    CommentUpdateParams,
+    CommentUpdatesParams,
+    Country,
+    CreateListParams,
+    DeviceCodeResponse,
+    Genre,
+    GetListItemsParams,
+    GetListsParams,
+    HistoryItem,
+    Language,
+    List,
+    ListItem,
+    ListItemResponse,
+    MediaType,
+    Network,
+    PlaybackParams,
+    PlaybackProgress,
+    RatedItem,
+    RecentCommentsParams,
+    RemoveListItemsParams,
+    ReorderListItemsParams,
+    SearchIdParams,
+    SearchResult,
+    SearchTextParams,
+    SyncParams,
+    SyncResponse,
+    TokenResponse,
+    TraktOptions,
+    TrendingCommentsParams,
+    UpdateListParams,
+    WatchedItem,
+    WatchlistItem,
 } from "./types/index.ts";
 import type {
-  AnticipatedMovie,
-  Movie,
-  MovieAlias,
-  MovieRelease,
-  MovieTranslation,
-  MovieUpdates,
-  PlayedMovie,
-  TrendingMovies,
-  WatchedMovie,
+    AnticipatedMovie,
+    BoxOfficeMovie,
+    Movie,
+    MovieAlias,
+    MovieRelease,
+    MovieTranslation,
+    MovieUpdates,
+    PlayedMovie,
+    TrendingMovies,
+    WatchedMovie
 } from "./types/movies.ts";
 import type {
-  AnticipatedShow,
-  Episode,
-  PlayedShow,
-  Season,
-  Show,
-  ShowAlias,
-  ShowTranslation,
-  ShowUpdates,
-  TrendingShow,
-  WatchedShow,
+    AnticipatedShow,
+    Episode,
+    PlayedShow,
+    Season,
+    Show,
+    ShowAlias,
+    ShowTranslation,
+    ShowUpdates,
+    TrendingShow,
+    WatchedShow,
 } from "./types/shows.ts";
 import { CollectionType } from "./types/sync.ts";
 import type { User, UserCollection, UserComment } from "./types/users.ts";
@@ -176,6 +189,19 @@ export default class Trakt {
       this._call("get", `/movies/${params.id}/studios`),
     watching: (params: { id: string }) =>
       this._call("get", `/movies/${params.id}/watching`),
+    boxoffice: (params?: { page?: number; limit?: number }): Promise<BoxOfficeMovie[]> =>
+      this._call("get", "/movies/boxoffice", params),
+    certifications: (params: { id: string }): Promise<Certification[]> =>
+      this._call("get", `/movies/${params.id}/certifications`),
+    languages: (params: { id: string }): Promise<Language[]> =>
+      this._call("get", `/movies/${params.id}/languages`),
+    genres: (params: { id: string }): Promise<Genre[]> =>
+      this._call("get", `/movies/${params.id}/genres`),
+    similar: (params: { id: string; page?: number; limit?: number }): Promise<Movie[]> =>
+      this._call("get", `/movies/${params.id}/similar`, {
+        page: params.page,
+        limit: params.limit,
+      }),
   };
 
   public shows = {
@@ -1037,6 +1063,208 @@ export default class Trakt {
     },
   };
 
+  public comments = {
+    /**
+     * Get a specific comment by ID.
+     * @param id The comment ID
+     * @returns Promise resolving to the comment
+     */
+    get: (id: number): Promise<Comment> => this._call("get", `/comments/${id}`),
+
+    /**
+     * Create a new comment.
+     * OAuth Required
+     * @param params Comment creation parameters
+     * @returns Promise resolving to the created comment
+     */
+    create: (params: CommentPostParams): Promise<Comment> =>
+      this._call("post", "/comments", params),
+
+    /**
+     * Update an existing comment.
+     * OAuth Required
+     * @param id The comment ID to update
+     * @param params Comment update parameters
+     * @returns Promise resolving to the updated comment
+     */
+    update: (id: number, params: CommentUpdateParams): Promise<Comment> =>
+      this._call("put", `/comments/${id}`, params),
+
+    /**
+     * Delete a comment.
+     * OAuth Required
+     * @param id The comment ID to delete
+     * @returns Promise resolving when comment is deleted
+     */
+    delete: (id: number): Promise<void> =>
+      this._call("delete", `/comments/${id}`),
+
+    /**
+     * Get replies to a specific comment.
+     * @param id The parent comment ID
+     * @param params Optional parameters for pagination
+     * @returns Promise resolving to array of reply comments
+     */
+    replies: (
+      id: number,
+      params?: { page?: number; limit?: number },
+    ): Promise<Comment[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", `/comments/${id}/replies`, searchParams);
+    },
+
+    /**
+     * Create a reply to a comment.
+     * OAuth Required
+     * @param id The parent comment ID
+     * @param params Reply parameters
+     * @returns Promise resolving to the created reply comment
+     */
+    reply: (id: number, params: CommentReplyParams): Promise<Comment> =>
+      this._call("post", `/comments/${id}/replies`, params),
+
+    /**
+     * Like a comment.
+     * OAuth Required
+     * @param id The comment ID to like
+     * @returns Promise resolving when comment is liked
+     */
+    like: (id: number): Promise<void> =>
+      this._call("post", `/comments/${id}/like`),
+
+    /**
+     * Unlike a comment.
+     * OAuth Required
+     * @param id The comment ID to unlike
+     * @returns Promise resolving when comment is unliked
+     */
+    unlike: (id: number): Promise<void> =>
+      this._call("delete", `/comments/${id}/like`),
+
+    /**
+     * Get trending comments.
+     * @param params Optional parameters for filtering and pagination
+     * @returns Promise resolving to array of trending comments
+     */
+    trending: (params?: TrendingCommentsParams): Promise<Comment[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.comment_type) searchParams.comment_type = params.comment_type;
+      if (params?.type) searchParams.type = params.type;
+      if (params?.include_replies !== undefined) {
+        searchParams.include_replies = params.include_replies;
+      }
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/comments/trending", searchParams);
+    },
+
+    /**
+     * Get recent comments.
+     * @param params Optional parameters for filtering and pagination
+     * @returns Promise resolving to array of recent comments
+     */
+    recent: (params?: RecentCommentsParams): Promise<Comment[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.comment_type) searchParams.comment_type = params.comment_type;
+      if (params?.type) searchParams.type = params.type;
+      if (params?.include_replies !== undefined) {
+        searchParams.include_replies = params.include_replies;
+      }
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/comments/recent", searchParams);
+    },
+
+    /**
+     * Get comment updates.
+     * @param params Optional parameters for filtering and pagination
+     * @returns Promise resolving to array of updated comments
+     */
+    updates: (params?: CommentUpdatesParams): Promise<Comment[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.comment_type) searchParams.comment_type = params.comment_type;
+      if (params?.type) searchParams.type = params.type;
+      if (params?.include_replies !== undefined) {
+        searchParams.include_replies = params.include_replies;
+      }
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/comments/updates", searchParams);
+    },
+  };
+
+  /**
+   * Genres endpoints for retrieving movie and show genres.
+   */
+  public genres = {
+    /**
+     * Get all movie genres.
+     * @returns Promise resolving to array of movie genres
+     */
+    movies: (): Promise<Genre[]> => this._call("get", "/genres/movies"),
+
+    /**
+     * Get all show genres.
+     * @returns Promise resolving to array of show genres
+     */
+    shows: (): Promise<Genre[]> => this._call("get", "/genres/shows"),
+  };
+  /**
+   * Certifications endpoints for retrieving movie and show certifications.
+   */
+  public certifications = {
+    /**
+     * Get all movie certifications.
+     * @returns Promise resolving to array of movie certifications
+     */
+    movies: (): Promise<Certification[]> =>
+      this._call("get", "/certifications/movies"),
+
+    /**
+     * Get all show certifications.
+     * @returns Promise resolving to array of show certifications
+     */
+    shows: (): Promise<Certification[]> =>
+      this._call("get", "/certifications/shows"),
+  };
+  /**
+   * Countries endpoints for retrieving movie and show countries.
+   */
+  public countries = {
+    /**
+     * Get all movie countries.
+     * @returns Promise resolving to array of movie countries
+     */
+    movies: (): Promise<Country[]> => this._call("get", "/countries/movies"),
+
+    /**
+     * Get all show countries.
+     * @returns Promise resolving to array of show countries
+     */
+    shows: (): Promise<Country[]> => this._call("get", "/countries/shows"),
+  };
+  /**
+   * Languages endpoints for retrieving movie and show languages.
+   */
+  public languages = {
+    /**
+     * Get all movie languages.
+     * @returns Promise resolving to array of movie languages
+     */
+    movies: (): Promise<Language[]> => this._call("get", "/languages/movies"),
+
+    /**
+     * Get all show languages.
+     * @returns Promise resolving to array of show languages
+     */
+    shows: (): Promise<Language[]> => this._call("get", "/languages/shows"),
+  };
   private settings: TraktOptions;
   private auth: Auth;
 
@@ -1058,6 +1286,12 @@ export default class Trakt {
     };
     this.auth = auth;
   }
+
+  /**
+   * Get all networks.
+   * @returns Promise resolving to array of networks
+   */
+  public networks = (): Promise<Network[]> => this._call("get", "/networks");
 
   /**
    * Generates an OAuth2 authorization URL for user consent.

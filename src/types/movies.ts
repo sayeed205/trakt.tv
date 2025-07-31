@@ -55,3 +55,8 @@ export type MovieTranslation = {
   language: string;
   country: string;
 };
+
+export type BoxOfficeMovie = {
+  revenue: number;
+  movie: Movie;
+};

@@ -103,89 +103,109 @@ export type MediaType = "movies" | "shows" | "seasons" | "episodes";
 export type CommentType = "all" | "reviews" | "shouts";
 // Re-export movie types
 export type {
-  AnticipatedMovie,
-  IDs,
-  Movie,
-  MovieAlias,
-  MovieRelease,
-  MovieTranslation,
-  MovieUpdates,
-  PlayedMovie,
-  TrendingMovies,
-  WatchedMovie,
+    AnticipatedMovie,
+    BoxOfficeMovie,
+    IDs,
+    Movie,
+    MovieAlias,
+    MovieRelease,
+    MovieTranslation,
+    MovieUpdates,
+    PlayedMovie,
+    TrendingMovies,
+    WatchedMovie
 } from "./movies.ts";
 
 // Re-export user types
 export type {
-  CommentUser,
-  User,
-  UserCollection,
-  UserComment,
-  UserIDs,
-  UserLists,
+    CommentUser,
+    User,
+    UserCollection,
+    UserComment,
+    UserIDs,
+    UserLists
 } from "./users.ts";
 
 // Re-export show types
 export type {
-  AnticipatedShow,
-  Episode,
-  PlayedShow,
-  Season,
-  Show,
-  ShowAlias,
-  ShowTranslation,
-  ShowUpdates,
-  TrendingShow,
-  WatchedShow,
+    AnticipatedShow,
+    Episode,
+    PlayedShow,
+    Season,
+    Show,
+    ShowAlias,
+    ShowTranslation,
+    ShowUpdates,
+    TrendingShow,
+    WatchedShow
 } from "./shows.ts";
 
 // Re-export comment types
-export type { CommentPostParams } from "./comments.ts";
+export type {
+    Comment,
+    CommentPostParams,
+    CommentReplyParams,
+    CommentUpdateParams,
+    CommentUpdatesParams,
+    GetCommentsParams,
+    RecentCommentsParams,
+    TrendingCommentsParams
+} from "./comments.ts";
 
 // Re-export search types
 export type {
-  List,
-  Person,
-  SearchIdParams,
-  SearchResult,
-  SearchTextParams,
+    List,
+    Person,
+    SearchIdParams,
+    SearchResult,
+    SearchTextParams
 } from "./search.ts";
 
 // Re-export list types
 export type {
-  AddListItemsParams,
-  CreateListParams,
-  GetListItemsParams,
-  GetListsParams,
-  ListItem,
-  ListItemResponse,
-  RemoveListItemsParams,
-  ReorderListItemsParams,
-  UpdateListParams,
+    AddListItemsParams,
+    CreateListParams,
+    GetListItemsParams,
+    GetListsParams,
+    ListItem,
+    ListItemResponse,
+    RemoveListItemsParams,
+    ReorderListItemsParams,
+    UpdateListParams
 } from "./lists.ts";
 
 // Re-export calendar types
 export type {
-  CalendarMovie,
-  CalendarParams,
-  CalendarShow,
+    CalendarMovie,
+    CalendarParams,
+    CalendarShow
 } from "./calendar.ts";
 
 // Re-export sync types
 export type {
-  CollectionItem,
-  CollectionType,
-  HistoryItem,
-  PlaybackParams,
-  PlaybackProgress,
-  RatedItem,
-  SyncEpisode,
-  SyncItem,
-  SyncParams,
-  SyncResponse,
-  SyncSeason,
-  WatchedEpisode,
-  WatchedItem,
-  WatchedSeason,
-  WatchlistItem,
+    CollectionItem,
+    CollectionType,
+    HistoryItem,
+    PlaybackParams,
+    PlaybackProgress,
+    RatedItem,
+    SyncEpisode,
+    SyncItem,
+    SyncParams,
+    SyncResponse,
+    SyncSeason,
+    WatchedEpisode,
+    WatchedItem,
+    WatchedSeason,
+    WatchlistItem
 } from "./sync.ts";
+
+// Re-export metadata types
+export type {
+    Certification,
+    Country,
+    Genre,
+    Language,
+    Network
+} from "./metadata.ts";
+
