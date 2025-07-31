@@ -119,11 +119,16 @@ export type {
 // Re-export user types
 export type {
     CommentUser,
+    FollowRequest,
+    HiddenItem,
+    Like,
     User,
     UserCollection,
     UserComment,
     UserIDs,
-    UserLists
+    UserLists,
+    UserProfile,
+    UserSettings
 } from "./users.ts";
 
 // Re-export show types

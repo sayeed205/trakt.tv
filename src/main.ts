@@ -22,7 +22,7 @@
  *
  * @module
  */
-import type { Options } from "ky";
+import type {Options} from "ky";
 import ky from "ky";
 import crypto from "node:crypto";
 
@@ -81,7 +81,7 @@ import type {
     MovieUpdates,
     PlayedMovie,
     TrendingMovies,
-    WatchedMovie
+    WatchedMovie,
 } from "./types/movies.ts";
 import type {
     AnticipatedShow,
@@ -95,8 +95,17 @@ import type {
     TrendingShow,
     WatchedShow,
 } from "./types/shows.ts";
-import { CollectionType } from "./types/sync.ts";
-import type { User, UserCollection, UserComment } from "./types/users.ts";
+import {CollectionType} from "./types/sync.ts";
+import type {
+    FollowRequest,
+    HiddenItem,
+    Like,
+    User,
+    UserCollection,
+    UserComment,
+    UserProfile,
+    UserSettings,
+} from "./types/users.ts";
 
 /**
  * The main Trakt.tv API client for handling OAuth2 flows and token management.
@@ -189,7 +198,9 @@ export default class Trakt {
       this._call("get", `/movies/${params.id}/studios`),
     watching: (params: { id: string }) =>
       this._call("get", `/movies/${params.id}/watching`),
-    boxoffice: (params?: { page?: number; limit?: number }): Promise<BoxOfficeMovie[]> =>
+    boxoffice: (
+      params?: { page?: number; limit?: number },
+    ): Promise<BoxOfficeMovie[]> =>
       this._call("get", "/movies/boxoffice", params),
     certifications: (params: { id: string }): Promise<Certification[]> =>
       this._call("get", `/movies/${params.id}/certifications`),
@@ -197,7 +208,9 @@ export default class Trakt {
       this._call("get", `/movies/${params.id}/languages`),
     genres: (params: { id: string }): Promise<Genre[]> =>
       this._call("get", `/movies/${params.id}/genres`),
-    similar: (params: { id: string; page?: number; limit?: number }): Promise<Movie[]> =>
+    similar: (
+      params: { id: string; page?: number; limit?: number },
+    ): Promise<Movie[]> =>
       this._call("get", `/movies/${params.id}/similar`, {
         page: params.page,
         limit: params.limit,
@@ -606,6 +619,130 @@ export default class Trakt {
       this._call("post", `/users/requests/${params.id}`),
     deny: (params: { id: string }) =>
       this._call("delete", `/users/requests/${params.id}`),
+
+    // User settings and profile management
+    settings: (): Promise<UserSettings> => this._call("get", "/users/settings"),
+    updateSettings: (params: Partial<UserSettings>): Promise<UserSettings> =>
+      this._call("post", "/users/settings", params),
+    profile: (): Promise<UserProfile> => this._call("get", "/users/me"),
+    updateProfile: (params: Partial<UserProfile>): Promise<UserProfile> =>
+      this._call("post", "/users/me", params),
+
+    // Follow requests management
+    requests: (): Promise<FollowRequest[]> =>
+      this._call("get", "/users/requests"),
+
+    // Hidden items management
+    hidden: (
+      section:
+        | "calendar"
+        | "progress_watched"
+        | "progress_collected"
+        | "recommendations",
+    ): Promise<HiddenItem[]> => this._call("get", `/users/hidden/${section}`),
+
+    // User likes
+    likes: (
+      params?: { type?: "comments" | "lists"; page?: number; limit?: number },
+    ): Promise<Like[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.type) searchParams.type = params.type;
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/users/likes", searchParams);
+    },
+
+    // Enhanced user data endpoints for authenticated user
+    watched: (type: "movies" | "shows"): Promise<WatchedItem[]> =>
+      this._call("get", `/users/me/watched/${type}`),
+    myCollection: (
+      type: "movies" | "shows",
+    ): Promise<CollectionItem<"movies" | "shows">[]> =>
+      this._call("get", `/users/me/collection/${type}`),
+    myRatings: (
+      type: "movies" | "shows" | "seasons" | "episodes",
+      rating?: number,
+    ): Promise<RatedItem[]> => {
+      const path = rating
+        ? `/users/me/ratings/${type}/${rating}`
+        : `/users/me/ratings/${type}`;
+      return this._call("get", path);
+    },
+    myWatchlist: (
+      type: "movies" | "shows" | "seasons" | "episodes",
+    ): Promise<WatchlistItem[]> =>
+      this._call("get", `/users/me/watchlist/${type}`),
+    myHistory: (params?: {
+      type?: "movies" | "shows" | "seasons" | "episodes";
+      id?: number;
+      start_at?: string;
+      end_at?: string;
+      page?: number;
+      limit?: number;
+    }): Promise<HistoryItem[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.start_at) searchParams.start_at = params.start_at;
+      if (params?.end_at) searchParams.end_at = params.end_at;
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      let path = "/users/me/history";
+      if (params?.type) {
+        path += `/${params.type}`;
+        if (params?.id) {
+          path += `/${params.id}`;
+        }
+      }
+
+      return this._call("get", path, searchParams);
+    },
+    myRecommendations: {
+      movies: (params?: {
+        ignore_collected?: boolean;
+        ignore_watchlisted?: boolean;
+        page?: number;
+        limit?: number;
+      }): Promise<Movie[]> => {
+        const searchParams: Record<string, unknown> = {};
+        if (params?.ignore_collected !== undefined) {
+          searchParams.ignore_collected = params.ignore_collected;
+        }
+        if (params?.ignore_watchlisted !== undefined) {
+          searchParams.ignore_watchlisted = params.ignore_watchlisted;
+        }
+        if (params?.page) searchParams.page = params.page;
+        if (params?.limit) searchParams.limit = params.limit;
+
+        return this._call(
+          "get",
+          "/users/me/recommendations/movies",
+          searchParams,
+        );
+      },
+      shows: (params?: {
+        ignore_collected?: boolean;
+        ignore_watchlisted?: boolean;
+        page?: number;
+        limit?: number;
+      }): Promise<Show[]> => {
+        const searchParams: Record<string, unknown> = {};
+        if (params?.ignore_collected !== undefined) {
+          searchParams.ignore_collected = params.ignore_collected;
+        }
+        if (params?.ignore_watchlisted !== undefined) {
+          searchParams.ignore_watchlisted = params.ignore_watchlisted;
+        }
+        if (params?.page) searchParams.page = params.page;
+        if (params?.limit) searchParams.limit = params.limit;
+
+        return this._call(
+          "get",
+          "/users/me/recommendations/shows",
+          searchParams,
+        );
+      },
+    },
   };
 
   public recommendations = {
