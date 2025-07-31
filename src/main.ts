@@ -22,48 +22,58 @@
  *
  * @module
  */
-import type {Options} from "ky";
+import type { Options } from "ky";
 import ky from "ky";
 import crypto from "node:crypto";
 
 import type {
-  Auth,
-  CalendarMovie,
-  CalendarParams,
-  CalendarShow,
-  CommentType,
-  DeviceCodeResponse,
-  MediaType,
-  SearchIdParams,
-  SearchResult,
-  SearchTextParams,
-  TokenResponse,
-  TraktOptions,
+    Auth,
+    CalendarMovie,
+    CalendarParams,
+    CalendarShow,
+    CollectionItem,
+    CommentType,
+    DeviceCodeResponse,
+    HistoryItem,
+    MediaType,
+    PlaybackParams,
+    PlaybackProgress,
+    RatedItem,
+    SearchIdParams,
+    SearchResult,
+    SearchTextParams,
+    SyncParams,
+    SyncResponse,
+    TokenResponse,
+    TraktOptions,
+    WatchedItem,
+    WatchlistItem,
 } from "./types/index.ts";
 import type {
-  AnticipatedMovie,
-  Movie,
-  MovieAlias,
-  MovieRelease,
-  MovieTranslation,
-  MovieUpdates,
-  PlayedMovie,
-  TrendingMovies,
-  WatchedMovie,
+    AnticipatedMovie,
+    Movie,
+    MovieAlias,
+    MovieRelease,
+    MovieTranslation,
+    MovieUpdates,
+    PlayedMovie,
+    TrendingMovies,
+    WatchedMovie,
 } from "./types/movies.ts";
 import type {
-  AnticipatedShow,
-  Episode,
-  PlayedShow,
-  Season,
-  Show,
-  ShowAlias,
-  ShowTranslation,
-  ShowUpdates,
-  TrendingShow,
-  WatchedShow,
+    AnticipatedShow,
+    Episode,
+    PlayedShow,
+    Season,
+    Show,
+    ShowAlias,
+    ShowTranslation,
+    ShowUpdates,
+    TrendingShow,
+    WatchedShow,
 } from "./types/shows.ts";
-import type {User, UserCollection, UserComment} from "./types/users.ts";
+import { CollectionType } from "./types/sync.ts";
+import type { User, UserCollection, UserComment } from "./types/users.ts";
 
 /**
  * The main Trakt.tv API client for handling OAuth2 flows and token management.
@@ -560,6 +570,305 @@ export default class Trakt {
       this._call("post", `/users/requests/${params.id}`),
     deny: (params: { id: string }) =>
       this._call("delete", `/users/requests/${params.id}`),
+  };
+
+  public recommendations = {
+    /**
+     * Get movie recommendations for the authenticated user.
+     * OAuth Required
+     * @param params Optional parameters for pagination and filtering
+     * @returns Promise resolving to array of recommended movies
+     */
+    movies: (params?: {
+      ignore_collected?: boolean;
+      ignore_watchlisted?: boolean;
+      page?: number;
+      limit?: number;
+    }): Promise<Movie[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.ignore_collected !== undefined) {
+        searchParams.ignore_collected = params.ignore_collected;
+      }
+      if (params?.ignore_watchlisted !== undefined) {
+        searchParams.ignore_watchlisted = params.ignore_watchlisted;
+      }
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/recommendations/movies", searchParams);
+    },
+
+    /**
+     * Get show recommendations for the authenticated user.
+     * OAuth Required
+     * @param params Optional parameters for pagination and filtering
+     * @returns Promise resolving to array of recommended shows
+     */
+    shows: (params?: {
+      ignore_collected?: boolean;
+      ignore_watchlisted?: boolean;
+      page?: number;
+      limit?: number;
+    }): Promise<Show[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.ignore_collected !== undefined) {
+        searchParams.ignore_collected = params.ignore_collected;
+      }
+      if (params?.ignore_watchlisted !== undefined) {
+        searchParams.ignore_watchlisted = params.ignore_watchlisted;
+      }
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/recommendations/shows", searchParams);
+    },
+
+    /**
+     * Hide functionality for removing items from future recommendations.
+     */
+    hide: {
+      /**
+       * Hide a movie from future recommendations.
+       * OAuth Required
+       * @param id The movie ID (Trakt ID, IMDB ID, or TMDB ID)
+       * @returns Promise resolving when movie is hidden
+       */
+      movie: (id: string): Promise<void> =>
+        this._call("delete", `/recommendations/movies/${id}`),
+
+      /**
+       * Hide a show from future recommendations.
+       * OAuth Required
+       * @param id The show ID (Trakt ID, IMDB ID, TVDB ID, or TMDB ID)
+       * @returns Promise resolving when show is hidden
+       */
+      show: (id: string): Promise<void> =>
+        this._call("delete", `/recommendations/shows/${id}`),
+    },
+  };
+
+  public sync = {
+    /**
+     * Collection sync operations for managing user's collected items.
+     */
+    collection: {
+      /**
+       * Get all collected items for a specific media type.
+       * OAuth Required
+       * @param type The media type to retrieve (movies or shows)
+       * @returns Promise resolving to array of collection items
+       */
+      get: <T extends CollectionType>(type: T): Promise<CollectionItem<T>[]> =>
+        this._call("get", `/sync/collection/${type}`),
+
+      /**
+       * Add items to user's collection.
+       * OAuth and *VIP Enhanced* is Required
+       * @param params Items to add to collection
+       * @returns Promise resolving to sync response
+       */
+      add: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/collection", params),
+
+      /**
+       * Remove items from user's collection.
+       * @param params Items to remove from collection
+       * @returns Promise resolving to sync response
+       */
+      remove: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/collection/remove", params),
+    },
+
+    /**
+     * Watched sync operations for managing user's watch history.
+     */
+    watched: {
+      /**
+       * Get all watched items for a specific media type.
+       * @param type The media type to retrieve (movies or shows)
+       * @returns Promise resolving to array of watched items
+       */
+      get: (type: "movies" | "shows"): Promise<WatchedItem[]> =>
+        this._call("get", `/sync/watched/${type}`),
+
+      /**
+       * Add items to user's watched history.
+       * @param params Items to mark as watched
+       * @returns Promise resolving to sync response
+       */
+      add: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/history", params),
+
+      /**
+       * Remove items from user's watched history.
+       * @param params Items to remove from watched history
+       * @returns Promise resolving to sync response
+       */
+      remove: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/history/remove", params),
+    },
+
+    /**
+     * Ratings sync operations for managing user's ratings.
+     */
+    ratings: {
+      /**
+       * Get all rated items for a specific media type.
+       * @param type The media type to retrieve
+       * @param rating Optional specific rating to filter by (1-10)
+       * @returns Promise resolving to array of rated items
+       */
+      get: (
+        type: "movies" | "shows" | "seasons" | "episodes",
+        rating?: number,
+      ): Promise<RatedItem[]> => {
+        const path = rating
+          ? `/sync/ratings/${type}/${rating}`
+          : `/sync/ratings/${type}`;
+        return this._call("get", path);
+      },
+
+      /**
+       * Add ratings for items.
+       * @param params Items with ratings to add
+       * @returns Promise resolving to sync response
+       */
+      add: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/ratings", params),
+
+      /**
+       * Remove ratings from items.
+       * @param params Items to remove ratings from
+       * @returns Promise resolving to sync response
+       */
+      remove: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/ratings/remove", params),
+    },
+
+    /**
+     * Watchlist sync operations for managing user's watchlist.
+     */
+    watchlist: {
+      /**
+       * Get all watchlist items for a specific media type.
+       * @param type The media type to retrieve
+       * @returns Promise resolving to array of watchlist items
+       */
+      get: (
+        type: "movies" | "shows" | "seasons" | "episodes",
+      ): Promise<WatchlistItem[]> =>
+        this._call("get", `/sync/watchlist/${type}`),
+
+      /**
+       * Add items to user's watchlist.
+       * @param params Items to add to watchlist
+       * @returns Promise resolving to sync response
+       */
+      add: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/watchlist", params),
+
+      /**
+       * Remove items from user's watchlist.
+       * @param params Items to remove from watchlist
+       * @returns Promise resolving to sync response
+       */
+      remove: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/watchlist/remove", params),
+    },
+
+    /**
+     * History sync operations for managing detailed watch history.
+     */
+    history: {
+      /**
+       * Get user's watch history with optional filters.
+       * @param params Optional parameters for filtering history
+       * @returns Promise resolving to array of history items
+       */
+      get: (params?: {
+        type?: "movies" | "shows" | "seasons" | "episodes";
+        id?: number;
+        start_at?: string;
+        end_at?: string;
+        page?: number;
+        limit?: number;
+      }): Promise<HistoryItem[]> => {
+        const searchParams: Record<string, unknown> = {};
+        if (params?.start_at) searchParams.start_at = params.start_at;
+        if (params?.end_at) searchParams.end_at = params.end_at;
+        if (params?.page) searchParams.page = params.page;
+        if (params?.limit) searchParams.limit = params.limit;
+
+        let path = "/sync/history";
+        if (params?.type) {
+          path += `/${params.type}`;
+          if (params?.id) {
+            path += `/${params.id}`;
+          }
+        }
+
+        return this._call("get", path, searchParams);
+      },
+
+      /**
+       * Add items to user's watch history.
+       * @param params Items to add to history
+       * @returns Promise resolving to sync response
+       */
+      add: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/history", params),
+
+      /**
+       * Remove items from user's watch history.
+       * @param params Items to remove from history
+       * @returns Promise resolving to sync response
+       */
+      remove: (params: SyncParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/history/remove", params),
+    },
+
+    /**
+     * Playback progress operations for managing viewing progress.
+     */
+    playback: {
+      /**
+       * Get current playback progress for all items.
+       * @param params Optional parameters for filtering
+       * @returns Promise resolving to array of playback progress items
+       */
+      get: (params?: {
+        type?: "movies" | "episodes";
+        page?: number;
+        limit?: number;
+      }): Promise<PlaybackProgress[]> => {
+        const searchParams: Record<string, unknown> = {};
+        if (params?.page) searchParams.page = params.page;
+        if (params?.limit) searchParams.limit = params.limit;
+
+        let path = "/sync/playback";
+        if (params?.type) {
+          path += `/${params.type}`;
+        }
+
+        return this._call("get", path, searchParams);
+      },
+
+      /**
+       * Set playback progress for an item.
+       * @param params Playback progress data
+       * @returns Promise resolving to sync response
+       */
+      set: (params: PlaybackParams): Promise<SyncResponse> =>
+        this._call("post", "/sync/playback", params),
+
+      /**
+       * Remove playback progress for an item.
+       * @param id The playback progress ID to remove
+       * @returns Promise resolving to sync response
+       */
+      remove: (id: number): Promise<SyncResponse> =>
+        this._call("delete", `/sync/playback/${id}`),
+    },
   };
 
   private settings: TraktOptions;

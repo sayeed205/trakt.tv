@@ -158,3 +158,22 @@ export type {
     CalendarShow
 } from "./calendar.ts";
 
+// Re-export sync types
+export type {
+    CollectionItem,
+    CollectionType,
+    HistoryItem,
+    PlaybackParams,
+    PlaybackProgress,
+    RatedItem,
+    SyncEpisode,
+    SyncItem,
+    SyncParams,
+    SyncResponse,
+    SyncSeason,
+    WatchedEpisode,
+    WatchedItem,
+    WatchedSeason,
+    WatchlistItem
+} from "./sync.ts";
+
