@@ -1,5 +1,5 @@
-import type {Movie} from "./movies.ts";
-import type {Episode, Show} from "./shows.ts";
+import type { Movie } from "./movies.ts";
+import type { Episode, Show } from "./shows.ts";
 
 /**
  * Calendar show type representing a show episode with air date information.
@@ -8,9 +8,9 @@ export type CalendarShow = {
   /** The air date of the episode in ISO 8601 format */
   first_aired: string;
   /** The episode information */
-  episode: Pick<Episode,"season"|"number"|"title"|"ids">;
+  episode: Pick<Episode, "season" | "number" | "title" | "ids">;
   /** The show information */
-  show: Pick<Show,"title"|"year"|"ids">;
+  show: Pick<Show, "title" | "year" | "ids">;
 };
 
 /**

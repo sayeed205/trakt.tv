@@ -27,50 +27,60 @@ import ky from "ky";
 import crypto from "node:crypto";
 
 import type {
-    Auth,
-    CalendarMovie,
-    CalendarParams,
-    CalendarShow,
-    CollectionItem,
-    CommentType,
-    DeviceCodeResponse,
-    HistoryItem,
-    MediaType,
-    PlaybackParams,
-    PlaybackProgress,
-    RatedItem,
-    SearchIdParams,
-    SearchResult,
-    SearchTextParams,
-    SyncParams,
-    SyncResponse,
-    TokenResponse,
-    TraktOptions,
-    WatchedItem,
-    WatchlistItem,
+  AddListItemsParams,
+  Auth,
+  CalendarMovie,
+  CalendarParams,
+  CalendarShow,
+  CollectionItem,
+  CommentType,
+  CreateListParams,
+  DeviceCodeResponse,
+  GetListItemsParams,
+  GetListsParams,
+  HistoryItem,
+  List,
+  ListItem,
+  ListItemResponse,
+  MediaType,
+  PlaybackParams,
+  PlaybackProgress,
+  RatedItem,
+  RemoveListItemsParams,
+  ReorderListItemsParams,
+  SearchIdParams,
+  SearchResult,
+  SearchTextParams,
+  SyncParams,
+  SyncResponse,
+  TokenResponse,
+  TraktOptions,
+  UpdateListParams,
+  WatchedItem,
+  WatchlistItem,
 } from "./types/index.ts";
 import type {
-    AnticipatedMovie,
-    Movie,
-    MovieAlias,
-    MovieRelease,
-    MovieTranslation,
-    MovieUpdates,
-    PlayedMovie,
-    TrendingMovies,
-    WatchedMovie,
+  AnticipatedMovie,
+  Movie,
+  MovieAlias,
+  MovieRelease,
+  MovieTranslation,
+  MovieUpdates,
+  PlayedMovie,
+  TrendingMovies,
+  WatchedMovie,
 } from "./types/movies.ts";
 import type {
-    AnticipatedShow,
-    Episode,
-    PlayedShow,
-    Season,
-    Show,
-    ShowAlias,
-    ShowTranslation,
-    ShowUpdates,
-    TrendingShow,
-    WatchedShow,
+  AnticipatedShow,
+  Episode,
+  PlayedShow,
+  Season,
+  Show,
+  ShowAlias,
+  ShowTranslation,
+  ShowUpdates,
+  TrendingShow,
+  WatchedShow,
 } from "./types/shows.ts";
 import { CollectionType } from "./types/sync.ts";
 import type { User, UserCollection, UserComment } from "./types/users.ts";
@@ -868,6 +878,162 @@ export default class Trakt {
        */
       remove: (id: number): Promise<SyncResponse> =>
         this._call("delete", `/sync/playback/${id}`),
+    },
+  };
+
+  public lists = {
+    /**
+     * Get trending lists.
+     * @param params Optional parameters for pagination
+     * @returns Promise resolving to array of trending lists
+     */
+    trending: (params?: GetListsParams): Promise<List[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/lists/trending", searchParams);
+    },
+
+    /**
+     * Get popular lists.
+     * @param params Optional parameters for pagination
+     * @returns Promise resolving to array of popular lists
+     */
+    popular: (params?: GetListsParams): Promise<List[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", "/lists/popular", searchParams);
+    },
+
+    /**
+     * Get a specific list by ID.
+     * OAuth Required for private lists
+     * @param id The list ID (Trakt ID or slug)
+     * @returns Promise resolving to the list
+     */
+    get: (id: string): Promise<List> => this._call("get", `/lists/${id}`),
+
+    /**
+     * Get items from a specific list.
+     * OAuth Required for private lists
+     * @param id The list ID (Trakt ID or slug)
+     * @param params Optional parameters for filtering and pagination
+     * @returns Promise resolving to array of list items
+     */
+    items: (id: string, params?: GetListItemsParams): Promise<ListItem[]> => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.type) searchParams.type = params.type;
+      if (params?.extended) searchParams.extended = params.extended;
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", `/lists/${id}/items`, searchParams);
+    },
+
+    /**
+     * Get comments for a specific list.
+     * @param id The list ID (Trakt ID or slug)
+     * @param params Optional parameters for pagination
+     * @returns Promise resolving to array of comments
+     */
+    comments: (id: string, params?: { page?: number; limit?: number }) => {
+      const searchParams: Record<string, unknown> = {};
+      if (params?.page) searchParams.page = params.page;
+      if (params?.limit) searchParams.limit = params.limit;
+
+      return this._call("get", `/lists/${id}/comments`, searchParams);
+    },
+
+    /**
+     * Create a new list.
+     * OAuth Required
+     * @param params List creation parameters
+     * @returns Promise resolving to the created list
+     */
+    create: (params: CreateListParams): Promise<List> =>
+      this._call("post", "/lists", params),
+
+    /**
+     * Update an existing list.
+     * OAuth Required
+     * @param id The list ID (Trakt ID or slug)
+     * @param params List update parameters
+     * @returns Promise resolving to the updated list
+     */
+    update: (id: string, params: UpdateListParams): Promise<List> =>
+      this._call("put", `/lists/${id}`, params),
+
+    /**
+     * Delete a list.
+     * OAuth Required
+     * @param id The list ID (Trakt ID or slug)
+     * @returns Promise resolving when list is deleted
+     */
+    delete: (id: string): Promise<void> => this._call("delete", `/lists/${id}`),
+
+    /**
+     * Like a list.
+     * OAuth Required
+     * @param id The list ID (Trakt ID or slug)
+     * @returns Promise resolving when list is liked
+     */
+    like: (id: string): Promise<void> =>
+      this._call("post", `/lists/${id}/like`),
+
+    /**
+     * Unlike a list.
+     * OAuth Required
+     * @param id The list ID (Trakt ID or slug)
+     * @returns Promise resolving when list is unliked
+     */
+    unlike: (id: string): Promise<void> =>
+      this._call("delete", `/lists/${id}/like`),
+
+    /**
+     * List item management operations.
+     */
+    itemManagement: {
+      /**
+       * Add items to a list.
+       * OAuth Required
+       * @param id The list ID (Trakt ID or slug)
+       * @param params Items to add to the list
+       * @returns Promise resolving to operation response
+       */
+      add: (
+        id: string,
+        params: AddListItemsParams,
+      ): Promise<ListItemResponse> =>
+        this._call("post", `/lists/${id}/items`, params),
+
+      /**
+       * Remove items from a list.
+       * OAuth Required
+       * @param id The list ID (Trakt ID or slug)
+       * @param params Items to remove from the list
+       * @returns Promise resolving to operation response
+       */
+      remove: (
+        id: string,
+        params: RemoveListItemsParams,
+      ): Promise<ListItemResponse> =>
+        this._call("post", `/lists/${id}/items/remove`, params),
+
+      /**
+       * Reorder items in a list.
+       * OAuth Required
+       * @param id The list ID (Trakt ID or slug)
+       * @param params New order for list items
+       * @returns Promise resolving to operation response
+       */
+      reorder: (
+        id: string,
+        params: ReorderListItemsParams,
+      ): Promise<ListItemResponse> =>
+        this._call("post", `/lists/${id}/items/reorder`, params),
     },
   };
 

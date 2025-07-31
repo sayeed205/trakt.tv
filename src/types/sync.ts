@@ -1,5 +1,5 @@
-import type {Movie} from "./movies.ts";
-import type {Episode, Season, Show} from "./shows.ts";
+import type { Movie } from "./movies.ts";
+import type { Episode, Season, Show } from "./shows.ts";
 
 /**
  * Response from sync operations (add/remove items).
