@@ -1,9 +1,9 @@
-import { expect } from "jsr:@std/expect";
-import { describe, it } from "jsr:@std/testing/bdd";
+import {expect} from "jsr:@std/expect";
+import {describe, it} from "jsr:@std/testing/bdd";
 import process from "node:process";
 
 import Trakt from "../src/main.ts";
-import type { CalendarMovie } from "../src/types/calendar.ts";
+import type {CalendarMovie} from "../src/types/calendar.ts";
 
 const clientId = Deno.env.get("TRAKT_CLIENT_ID");
 const clientSecret = Deno.env.get("TRAKT_CLIENT_SECRET");
@@ -125,7 +125,7 @@ describe("Trakt Calendar", () => {
         title: "Test Movie",
         year: 2024,
         ids: {
-          trakt: "1",
+          trakt: 1,
           slug: "test-movie",
           imdb: "tt1234567",
           tmdb: 12345,

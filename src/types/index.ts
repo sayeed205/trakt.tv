@@ -99,13 +99,30 @@ export type DeviceCodeResponse = {
   interval: number;
 };
 
-export type MediaType = "movies" | "shows" | "seasons" | "episodes";
-export type CommentType = "all" | "reviews" | "shouts";
-// Re-export movie types
+// Re-export shared types
+export type {
+    BaseParams,
+    CommentType,
+    DateRangeParams,
+    ExtendedInfo,
+    ExtendedParams,
+    IDs,
+    MediaType,
+    PaginatedResponse,
+    PaginationParams,
+    PrivacyLevel,
+    Rating,
+    SortDirection,
+    Stats,
+    Timestamp,
+    TraktError
+} from "./shared.ts";
+// ============================================================================
+// MOVIES API SECTION
+// ============================================================================
 export type {
     AnticipatedMovie,
     BoxOfficeMovie,
-    IDs,
     Movie,
     MovieAlias,
     MovieRelease,
@@ -116,22 +133,9 @@ export type {
     WatchedMovie
 } from "./movies.ts";
 
-// Re-export user types
-export type {
-    CommentUser,
-    FollowRequest,
-    HiddenItem,
-    Like,
-    User,
-    UserCollection,
-    UserComment,
-    UserIDs,
-    UserLists,
-    UserProfile,
-    UserSettings
-} from "./users.ts";
-
-// Re-export show types
+// ============================================================================
+// SHOWS API SECTION
+// ============================================================================
 export type {
     AnticipatedShow,
     Episode,
@@ -145,19 +149,9 @@ export type {
     WatchedShow
 } from "./shows.ts";
 
-// Re-export comment types
-export type {
-    Comment,
-    CommentPostParams,
-    CommentReplyParams,
-    CommentUpdateParams,
-    CommentUpdatesParams,
-    GetCommentsParams,
-    RecentCommentsParams,
-    TrendingCommentsParams
-} from "./comments.ts";
-
-// Re-export search types
+// ============================================================================
+// SEARCH API SECTION
+// ============================================================================
 export type {
     List,
     Person,
@@ -166,27 +160,18 @@ export type {
     SearchTextParams
 } from "./search.ts";
 
-// Re-export list types
-export type {
-    AddListItemsParams,
-    CreateListParams,
-    GetListItemsParams,
-    GetListsParams,
-    ListItem,
-    ListItemResponse,
-    RemoveListItemsParams,
-    ReorderListItemsParams,
-    UpdateListParams
-} from "./lists.ts";
-
-// Re-export calendar types
+// ============================================================================
+// CALENDAR API SECTION
+// ============================================================================
 export type {
     CalendarMovie,
     CalendarParams,
     CalendarShow
 } from "./calendar.ts";
 
-// Re-export sync types
+// ============================================================================
+// SYNC API SECTION
+// ============================================================================
 export type {
     CollectionItem,
     CollectionType,
@@ -205,7 +190,55 @@ export type {
     WatchlistItem
 } from "./sync.ts";
 
-// Re-export metadata types
+// ============================================================================
+// LISTS API SECTION
+// ============================================================================
+export type {
+    AddListItemsParams,
+    CreateListParams,
+    GetListItemsParams,
+    GetListsParams,
+    ListItem,
+    ListItemResponse,
+    RemoveListItemsParams,
+    ReorderListItemsParams,
+    UpdateListParams
+} from "./lists.ts";
+
+// ============================================================================
+// COMMENTS API SECTION
+// ============================================================================
+export type {
+    Comment,
+    CommentPostParams,
+    CommentReplyParams,
+    CommentUpdateParams,
+    CommentUpdatesParams,
+    GetCommentsParams,
+    RecentCommentsParams,
+    TrendingCommentsParams
+} from "./comments.ts";
+
+// ============================================================================
+// USERS API SECTION
+// ============================================================================
+export type {
+    CommentUser,
+    FollowRequest,
+    HiddenItem,
+    Like,
+    User,
+    UserCollection,
+    UserComment,
+    UserIDs,
+    UserLists,
+    UserProfile,
+    UserSettings
+} from "./users.ts";
+
+// ============================================================================
+// METADATA API SECTION
+// ============================================================================
 export type {
     Certification,
     Country,

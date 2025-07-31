@@ -1,13 +1,9 @@
-import { expect } from "jsr:@std/expect";
-import { describe, it } from "jsr:@std/testing/bdd";
+import {expect} from "jsr:@std/expect";
+import {describe, it} from "jsr:@std/testing/bdd";
 import process from "node:process";
 
 import Trakt from "../src/main.ts";
-import type {
-  SearchIdParams,
-  SearchResult,
-  SearchTextParams,
-} from "../src/types/search.ts";
+import type {SearchIdParams, SearchResult, SearchTextParams,} from "../src/types/search.ts";
 
 const clientId = Deno.env.get("TRAKT_CLIENT_ID");
 const clientSecret = Deno.env.get("TRAKT_CLIENT_SECRET");
@@ -158,7 +154,7 @@ describe("Trakt Search", () => {
         title: "Test Movie",
         year: 2023,
         ids: {
-          trakt: "123",
+          trakt: 123,
           slug: "test-movie",
           imdb: "tt123456",
           tmdb: 789,

@@ -1,5 +1,5 @@
-import type { MediaType } from "./index.ts";
 import type { Movie } from "./movies.ts";
+import type { MediaType } from "./shared.ts";
 
 export type User = {
   username: string;

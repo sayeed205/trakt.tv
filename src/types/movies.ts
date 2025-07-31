@@ -1,9 +1,4 @@
-export type IDs = {
-  trakt: string;
-  slug: string;
-  imdb: string;
-  tmdb: number;
-};
+import type { IDs } from "./shared.ts";
 
 export type Movie = {
   title: string;

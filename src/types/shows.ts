@@ -1,10 +1,4 @@
-export type IDs = {
-  trakt: string;
-  slug: string;
-  tvdb: string;
-  imdb: string;
-  tmdb: number;
-};
+import type { IDs } from "./shared.ts";
 
 /**
  * Core show type representing a TV show from the Trakt.tv API.
