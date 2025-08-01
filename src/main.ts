@@ -26,7 +26,7 @@ import type { Options } from "ky";
 import ky from "ky";
 import crypto from "node:crypto";
 
-import type {
+import {
   AddListItemsParams,
   Auth,
   CalendarMovie,
@@ -40,6 +40,7 @@ import type {
   CommentType,
   CommentUpdateParams,
   CommentUpdatesParams,
+  CommentUser,
   Country,
   CreateListParams,
   DeviceCodeResponse,
@@ -56,40 +57,49 @@ import type {
   PlaybackParams,
   PlaybackProgress,
   RatedItem,
+  Rating,
   RecentCommentsParams,
   RemoveListItemsParams,
   ReorderListItemsParams,
   SearchIdParams,
   SearchResult,
   SearchTextParams,
+  Stats,
   SyncParams,
   SyncResponse,
   TokenResponse,
   TraktOptions,
   TrendingCommentsParams,
   UpdateListParams,
+  User,
   WatchedItem,
   WatchlistItem,
 } from "./types/index.ts";
-import type {
+import {
   AnticipatedMovie,
   BoxOfficeMovie,
   Movie,
   MovieAlias,
+  MovieList,
+  MoviePeople,
   MovieRelease,
+  MovieStudio,
   MovieTranslation,
   MovieUpdates,
+  MovieVideo,
   PlayedMovie,
   TrendingMovies,
   WatchedMovie,
 } from "./types/movies.ts";
-import type {
+import { RatingDistribution } from "./types/shared.ts";
+import {
   AnticipatedShow,
   Episode,
   PlayedShow,
   Season,
   Show,
   ShowAlias,
+  ShowStats,
   ShowTranslation,
   ShowUpdates,
   TrendingShow,
@@ -100,7 +110,6 @@ import type {
   FollowRequest,
   HiddenItem,
   Like,
-  User,
   UserCollection,
   UserComment,
   UserProfile,
@@ -180,22 +189,51 @@ export default class Trakt {
           params.language ? `/${params.language}` : ""
         }`,
       ),
-    comments: (params: { id: string }) =>
-      this._call("get", `/movies/${params.id}/comments`),
-    lists: (params: { id: string }) =>
-      this._call("get", `/movies/${params.id}/lists`),
-    people: (params: { id: string }) =>
+    comments: (
+      params: {
+        id: string | number;
+        sort?:
+          | "newest"
+          | "oldest"
+          | "likes"
+          | "replies"
+          | "highest"
+          | "lowest"
+          | "plays";
+      },
+    ): Promise<Comment[]> =>
+      this._call(
+        "get",
+        `/movies/${params.id}/comments/${params.sort ? params.sort : "newest"}`,
+      ),
+    lists: ({ id, type, sort }: {
+      id: string | number;
+      type?: "all" | "personal" | "official" | "watchlists" | "favorites";
+      sort?: "popular" | "likes" | "comments" | "items" | "added" | "updated";
+    }): Promise<MovieList[]> =>
+      this._call(
+        "get",
+        `/movies/${id}/lists/${type ? type : "personal"}/${
+          sort ? sort : "popular"
+        }`,
+      ),
+    people: (params: { id: string }): Promise<MoviePeople[]> =>
       this._call("get", `/movies/${params.id}/people`),
-    ratings: (params: { id: string }) =>
-      this._call("get", `/movies/${params.id}/ratings`),
-    related: (params: { id: string }) =>
+    ratings: (params: { id: string }): Promise<{
+      rating: number;
+      votes: number;
+      distribution: Record<Rating, number>;
+    }> => this._call("get", `/movies/${params.id}/ratings`),
+    related: (params: { id: string }): Promise<Movie[]> =>
       this._call("get", `/movies/${params.id}/related`),
-    stats: (params: { id: string }) =>
+    stats: (params: { id: string }): Promise<Stats> =>
       this._call("get", `/movies/${params.id}/stats`),
-    studios: (params: { id: string }) =>
+    studios: (params: { id: string }): Promise<MovieStudio[]> =>
       this._call("get", `/movies/${params.id}/studios`),
-    watching: (params: { id: string }) =>
+    watching: (params: { id: string }): Promise<CommentUser[]> =>
       this._call("get", `/movies/${params.id}/watching`),
+    videos: (params: { id: string }): Promise<MovieVideo[]> =>
+      this._call("get", `/movies/${params.id}/videos`),
     boxoffice: (params?: {
       page?: number;
       limit?: number;
@@ -259,10 +297,10 @@ export default class Trakt {
     }): Promise<ShowUpdates[]> => this._call("get", "/shows/updates", params),
 
     // Show metadata endpoints
-    aliases: (id: string): Promise<ShowAlias[]> =>
+    aliases: (id: string | number): Promise<ShowAlias[]> =>
       this._call("get", `/shows/${id}/aliases`),
     translations: (params: {
-      id: string;
+      id: string | number;
       language?: string;
     }): Promise<ShowTranslation[]> =>
       this._call(
@@ -271,55 +309,49 @@ export default class Trakt {
           params.language ? `/${params.language}` : ""
         }`,
       ),
-    comments: (params: { id: string }) =>
+    comments: (params: { id: string | number }): Promise<Comment[]> =>
       this._call("get", `/shows/${params.id}/comments`),
-    lists: (params: { id: string }) =>
+    lists: (params: { id: string | number }): Promise<List[]> =>
       this._call("get", `/shows/${params.id}/lists`),
-    people: (params: { id: string }) =>
+    people: (params: { id: string | number }): Promise<MoviePeople[]> =>
       this._call("get", `/shows/${params.id}/people`),
-    ratings: (params: { id: string }) =>
+    ratings: (params: { id: string | number }): Promise<RatingDistribution> =>
       this._call("get", `/shows/${params.id}/ratings`),
-    related: (params: { id: string }) =>
+    related: (
+      params: { id: string | number },
+    ): Promise<Pick<Show, "title" | "year" | "ids">[]> =>
       this._call("get", `/shows/${params.id}/related`),
-    stats: (params: { id: string }) =>
+    stats: (params: { id: string | number }): Promise<ShowStats> =>
       this._call("get", `/shows/${params.id}/stats`),
-    watching: (params: { id: string }) =>
+    watching: (params: { id: string | number }): Promise<CommentUser[]> =>
       this._call("get", `/shows/${params.id}/watching`),
 
     // Seasons and episodes endpoints
     seasons: (params: {
-      id: string;
-      extended?: string;
-    }): Promise<Season[]> =>
-      this._call("get", `/shows/${params.id}/seasons`, {
-        extended: params.extended,
-      }),
+      id: string | number;
+    }): Promise<Pick<Season, "number" | "ids">[]> =>
+      this._call("get", `/shows/${params.id}/seasons`),
     season: (params: {
-      id: string;
+      id: string | number;
       season: number;
-      extended?: string;
-    }): Promise<Episode[]> =>
-      this._call("get", `/shows/${params.id}/seasons/${params.season}`, {
-        extended: params.extended,
-      }),
+    }): Promise<Season[]> =>
+      this._call("get", `/shows/${params.id}/seasons/${params.season}/info`),
     episodes: (params: {
-      id: string;
+      id: string | number;
       season: number;
-      extended?: string;
-    }): Promise<Episode[]> =>
+      translations?: string;
+    }): Promise<Pick<Episode, "season" | "number" | "title" | "ids">[]> =>
       this._call("get", `/shows/${params.id}/seasons/${params.season}`, {
-        extended: params.extended,
+        translations: params.translations,
       }),
     episode: (params: {
-      id: string;
+      id: string | number;
       season: number;
       episode: number;
-      extended?: string;
     }): Promise<Episode> =>
       this._call(
         "get",
         `/shows/${params.id}/seasons/${params.season}/episodes/${params.episode}`,
-        { extended: params.extended },
       ),
   };
 
@@ -594,13 +626,13 @@ export default class Trakt {
         "get",
         `/users/${params.id}/comments/${params.type}/${params.comment_type}`,
       ),
-    lists: (params: { id: string }) =>
+    lists: (params: { id: string }): Promise<List[]> =>
       this._call("get", `/users/${params.id}/lists`),
-    followers: (params: { id: string }) =>
+    followers: (params: { id: string }): Promise<User[]> =>
       this._call("get", `/users/${params.id}/followers`),
-    following: (params: { id: string }) =>
+    following: (params: { id: string }): Promise<User[]> =>
       this._call("get", `/users/${params.id}/following`),
-    friends: (params: { id: string }) =>
+    friends: (params: { id: string }): Promise<User[]> =>
       this._call("get", `/users/${params.id}/friends`),
     history: (params: {
       id: string;
@@ -608,31 +640,35 @@ export default class Trakt {
       item_id?: string;
       start_at?: string;
       end_at?: string;
-    }) =>
+    }): Promise<HistoryItem[]> =>
       this._call(
         "get",
         `/users/${params.id}/history${params.type ? `/${params.type}` : ""}${
           params.item_id ? `/${params.item_id}` : ""
         }?start_at=${params.start_at}&end_at=${params.end_at}`,
       ),
-    ratings: (params: { id: string; type: MediaType; rating?: number }) =>
+    ratings: (
+      params: { id: string; type: MediaType; rating?: number },
+    ): Promise<RatedItem[]> =>
       this._call(
         "get",
         `/users/${params.id}/ratings/${params.type}${
           params.rating ? `/${params.rating}` : ""
         }`,
       ),
-    watchlist: (params: { id: string; type: MediaType }) =>
+    watchlist: (
+      params: { id: string; type: MediaType },
+    ): Promise<WatchlistItem[]> =>
       this._call("get", `/users/${params.id}/watchlist/${params.type}`),
-    stats: (params: { id: string }) =>
+    stats: (params: { id: string }): Promise<Stats> =>
       this._call("get", `/users/${params.id}/stats`),
-    follow: (params: { id: string }) =>
+    follow: (params: { id: string }): Promise<void> =>
       this._call("post", `/users/${params.id}/follow`),
-    unfollow: (params: { id: string }) =>
+    unfollow: (params: { id: string }): Promise<void> =>
       this._call("delete", `/users/${params.id}/follow`),
-    approve: (params: { id: string }) =>
+    approve: (params: { id: string }): Promise<void> =>
       this._call("post", `/users/requests/${params.id}`),
-    deny: (params: { id: string }) =>
+    deny: (params: { id: string }): Promise<void> =>
       this._call("delete", `/users/requests/${params.id}`),
 
     // User settings and profile management
@@ -1122,15 +1158,14 @@ export default class Trakt {
     /**
      * Get comments for a specific list.
      * @param id The list ID (Trakt ID or slug)
-     * @param params Optional parameters for pagination
+     * @param sort Optional parameters for sorting
      * @returns Promise resolving to array of comments
      */
-    comments: (id: string, params?: { page?: number; limit?: number }) => {
-      const searchParams: Record<string, unknown> = {};
-      if (params?.page) searchParams.page = params.page;
-      if (params?.limit) searchParams.limit = params.limit;
-
-      return this._call("get", `/lists/${id}/comments`, searchParams);
+    comments: (
+      id: string,
+      sort: "newest" | "oldest" | "likes" | "replies" = "newest",
+    ): Promise<Comment[]> => {
+      return this._call("get", `/lists/${id}/comments/${sort}`);
     },
 
     /**

@@ -1,5 +1,5 @@
 import type { Movie } from "./movies.ts";
-import type { MediaType } from "./shared.ts";
+import type { IDs, MediaType } from "./shared.ts";
 
 export type User = {
   username: string;
@@ -24,7 +24,7 @@ export type CommentUser = {
   name: string;
   vip: boolean;
   vip_ep: boolean;
-  ids: UserIDs;
+  ids: Pick<IDs, "slug">;
 };
 
 export type UserComment = {

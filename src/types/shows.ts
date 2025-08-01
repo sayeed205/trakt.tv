@@ -122,3 +122,13 @@ export type ShowTranslation = {
   language: string;
   country: string;
 };
+
+export type ShowStats = {
+  watchers?: number;
+  plays?: number;
+  collectors?: number;
+  collected_episodes: number;
+  comments: number;
+  votes: number;
+  favorited: number;
+};

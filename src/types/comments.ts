@@ -1,6 +1,6 @@
 import type { Movie } from "./movies.ts";
 import type { Episode, Show } from "./shows.ts";
-import type { User } from "./users.ts";
+import { CommentUser } from "./users.ts";
 
 /**
  * Core Comment type representing a comment in the Trakt.tv system
@@ -15,12 +15,18 @@ export type Comment = {
   review: boolean;
   replies: number;
   likes: number;
-  user_rating?: number;
-  user: User;
+  user_stats: UserStats;
+  user: CommentUser;
   // Optional media context - present when comment is retrieved with media context
   movie?: Movie;
   show?: Show;
   episode?: Episode;
+};
+
+export type UserStats = {
+  rating: number;
+  play_count: number;
+  completed_count: number;
 };
 
 /**

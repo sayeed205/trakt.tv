@@ -92,6 +92,12 @@ export type DateRangeParams = {
  */
 export type Rating = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
+export type RatingDistribution = {
+  rating: number;
+  votes: number;
+  distribution: Record<Rating, number>;
+};
+
 /**
  * Timestamp string in ISO 8601 format.
  */
@@ -113,8 +119,10 @@ export type Stats = {
   lists?: number;
   /** Number of votes */
   votes?: number;
-  /** Average rating */
-  rating?: number;
+  /** Number of pavorited by users */
+  favorited?: number;
+  /** Number of User recommend */
+  recommended?: number;
 };
 
 /**
