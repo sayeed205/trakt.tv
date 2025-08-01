@@ -91,7 +91,7 @@ import {
   TrendingMovies,
   WatchedMovie,
 } from "./types/movies.ts";
-import { RatingDistribution } from "./types/shared.ts";
+import { CheckCodeResponse, RatingDistribution } from "./types/shared.ts";
 import {
   AnticipatedShow,
   Episode,
@@ -1589,15 +1589,47 @@ export default class Trakt {
    * @param code The device code returned from the initial request.
    * @returns The OAuth {@link TokenResponse} object.
    */
-  public checkCodes(code: string): Promise<TokenResponse> {
-    return this._deviceCode(
-      {
-        code,
-        client_id: this.settings.client_id,
-        client_secret: this.settings.client_secret!,
-      },
-      "token",
-    ) as Promise<TokenResponse>;
+  public async checkCodes(code: string): Promise<CheckCodeResponse> {
+    try {
+      const data = (await this._deviceCode(
+        {
+          code,
+          client_id: this.settings.client_id,
+          client_secret: this.settings.client_secret!,
+        },
+        "token",
+      )) as TokenResponse;
+
+      return { status: 200, message: "Success", data };
+    } catch (error: any) {
+      const status: number = error.response?.status ?? 500;
+      let message = "Unknown error";
+
+      switch (status) {
+        case 400:
+          message = "Pending – waiting for user authorization";
+          break;
+        case 404:
+          message = "Not Found – invalid device_code";
+          break;
+        case 409:
+          message = "Already Used – user already approved this code";
+          break;
+        case 410:
+          message = "Expired – the tokens have expired, restart the process";
+          break;
+        case 418:
+          message = "Denied – user explicitly denied this code";
+          break;
+        case 429:
+          message = "Slow Down – polling too quickly";
+          break;
+        default:
+          message = error.response?.statusText ?? "Network or server error";
+      }
+
+      return { status: status as CheckCodeFailure["status"], message };
+    }
   }
 
   /**

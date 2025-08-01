@@ -153,3 +153,16 @@ export type PaginatedResponse<T> = {
     item_count: number;
   };
 };
+
+type CheckCodeSuccess = {
+  status: 200;
+  message: string;
+  data: TokenResponse;
+};
+
+type CheckCodeFailure = {
+  status: 400 | 404 | 409 | 410 | 418 | 429;
+  message: string;
+};
+
+export type CheckCodeResponse = CheckCodeSuccess | CheckCodeFailure;
