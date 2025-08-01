@@ -75,6 +75,8 @@ export type TokenResponse = {
   created_at: number;
   /** Seconds until the access token expires. */
   expires_in: number;
+  token_type: string;
+  scope: string;
 };
 
 /**
