@@ -1536,8 +1536,14 @@ export default class Trakt {
   }
 
   /**
-   * Starts the OAuth2 Device Code flow.
-   * @returns A device code response used to direct the user to verify.
+   * Generate new codes to start the device authentication process.
+   * The `device_code` and interval will be used later to poll for the access_token.
+   * The `user_code` and `verification_url` should be presented to the user as mentioned in the flow steps above.
+   * *QR Code*
+   * You might consider generating a QR code for the user to easily scan on their mobile device.
+   * The QR code should be a URL that redirects to the verification_url and appends the user_code.
+   * For example, https://trakt.tv/activate/5055CC52 would load the Trakt hosted `verification_url` and pre-fill in the `user_code`.
+   * @returns A device code response {@link DeviceCodeResponse} used to direct the user to verify.
    *
    * @example
    * ```ts
@@ -1552,6 +1558,46 @@ export default class Trakt {
       },
       "code",
     ) as Promise<DeviceCodeResponse>;
+  }
+
+  /**
+   * Use this to verify the OAuth2 Device code flow
+   * Use the device_code and poll at the interval (in seconds) to check if the user has authorized you app.
+   * Use expires_in to stop polling after that many seconds, and gracefully instruct the user to restart the process.
+   * It is important to poll at the correct interval and also stop polling when expired.
+   *
+   * When you receive a `200` success response,
+   * save the `access_token` so your app can authenticate the user in methods that require it.
+   * The `access_token` is valid for 24 hours.
+   * Save and use the `refresh_token` to get a new access_token without asking the user to re-authenticate.
+   * Check below for all the error codes that you should handle.
+   *
+   * `200`	Success - save the `access_token`
+   *
+   * `400`	Pending - waiting for the user to authorize your app
+   *
+   * `404`	Not Found - invalid `device_code`
+   *
+   * `409`	Already Used - user already approved this code
+   *
+   * `410`	Expired - the tokens have expired, restart the process
+   *
+   * `418`	Denied - user explicitly denied this code
+   *
+   * `429`	Slow Down - your app is polling too quickly
+   *
+   * @param code The device code returned from the initial request.
+   * @returns The OAuth {@link TokenResponse} object.
+   */
+  public checkCodes(code: string): Promise<TokenResponse> {
+    return this._deviceCode(
+      {
+        code,
+        client_id: this.settings.client_id,
+        client_secret: this.settings.client_secret!,
+      },
+      "token",
+    ) as Promise<TokenResponse>;
   }
 
   /**
