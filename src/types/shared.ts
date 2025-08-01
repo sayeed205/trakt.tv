@@ -12,6 +12,8 @@
  * @module
  */
 
+import { TokenResponse } from "./index.ts";
+
 /**
  * Common ID structure used across all Trakt.tv entities.
  * Different entities may have different combinations of these IDs available.
@@ -154,13 +156,13 @@ export type PaginatedResponse<T> = {
   };
 };
 
-type CheckCodeSuccess = {
+export type CheckCodeSuccess = {
   status: 200;
   message: string;
   data: TokenResponse;
 };
 
-type CheckCodeFailure = {
+export type CheckCodeFailure = {
   status: 400 | 404 | 409 | 410 | 418 | 429;
   message: string;
 };

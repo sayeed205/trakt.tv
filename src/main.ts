@@ -91,7 +91,11 @@ import {
   TrendingMovies,
   WatchedMovie,
 } from "./types/movies.ts";
-import { CheckCodeResponse, RatingDistribution } from "./types/shared.ts";
+import {
+  CheckCodeFailure,
+  CheckCodeResponse,
+  RatingDistribution,
+} from "./types/shared.ts";
 import {
   AnticipatedShow,
   Episode,
