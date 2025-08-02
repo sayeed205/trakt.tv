@@ -341,37 +341,46 @@ export class ShowsModule {
   /**
    * Get show seasons.
    *
-   * @param params - Parameters including show ID
+   * todo)) add overloads with extended params
+   *
+   * @param id - Trakt ID, Trakt slug, or IMDB ID Example: `game-of-thrones`.
    * @returns Promise resolving to array of seasons with basic information
    * @example
    * ```ts
-   * const seasons = await client.shows.seasons({ id: "breaking-bad" });
+   * const seasons = await client.shows.seasons("breaking-bad");
    * seasons.forEach(season => {
    *   console.log(`Season ${season.number}`);
    * });
    * ```
    */
-  seasons(params: {
-    id: string | number;
-  }): Promise<Pick<Season, "number" | "ids">[]> {
-    return this._call("get", `/shows/${params.id}/seasons`);
+  seasons(id: string | number): Promise<Pick<Season, "number" | "ids">[]> {
+    return this._call("get", `/shows/${id}/seasons`);
   }
 
   /**
    * Get episodes for a specific season.
    *
-   * @param params - Parameters including show ID and season number
+   * todo)) add overloads for extended params
+   *
+   * @param id - Trakt ID, Trakt slug, or IMDB ID Example: `game-of-thrones`.
+   * @param season - Number of the season
+   * @param params - todo))
    * @returns Promise resolving to array of episodes in the season
    * @example
    * ```ts
-   * const season1Episodes = await client.shows.season({ id: "breaking-bad", season: 1 });
+   * const season1Episodes = await client.shows.season("breaking-bad", season: 1);
    * ```
    */
-  season(params: {
-    id: string | number;
-    season: number;
-  }): Promise<Pick<Episode, "season" | "number" | "title" | "ids">[]> {
-    return this._call("get", `/shows/${params.id}/seasons/${params.season}`);
+  season(
+    id: string | number,
+    season: number,
+    params?: Record<string, string>,
+  ): Promise<Pick<Episode, "number" | "ids">[]> {
+    return this._call(
+      "get",
+      `/shows/${id}/seasons/${season}/info`,
+      params,
+    );
   }
 
   /**
