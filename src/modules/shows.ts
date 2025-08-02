@@ -411,7 +411,10 @@ export class ShowsModule {
   /**
    * Get detailed information about a specific episode.
    *
-   * @param params - Parameters including show ID, season number, and episode number
+   * @param id - Trakt ID, Trakt slug, or IMDB ID Example: `game-of-thrones`.
+   * @param season - Season Number Example: `1`.
+   * @param episode - Episode Number Example: `1`.
+   * @param extended - Optional if include extended info
    * @returns Promise resolving to detailed episode information
    * @example
    * ```ts
@@ -423,14 +426,16 @@ export class ShowsModule {
    * console.log(episode.title); // "Pilot"
    * ```
    */
-  episode(params: {
-    id: string | number;
-    season: number;
-    episode: number;
-  }): Promise<Episode> {
+  episode(
+    id: string | number,
+    season: number,
+    episode: number,
+    extended?: boolean,
+  ): Promise<Episode> {
     return this._call(
       "get",
-      `/shows/${params.id}/seasons/${params.season}/episodes/${params.episode}`,
+      `/shows/${id}/seasons/${season}/episodes/${episode}`,
+      extended ? { extended: "full" } : {},
     );
   }
 }
