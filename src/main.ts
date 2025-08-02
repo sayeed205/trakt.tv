@@ -27,10 +27,10 @@ import ky from "ky";
 import crypto from "node:crypto";
 
 import type {
-    Auth,
-    DeviceCodeResponse,
-    TokenResponse,
-    TraktOptions,
+  Auth,
+  DeviceCodeResponse,
+  TokenResponse,
+  TraktOptions,
 } from "./types/index.ts";
 import { CheckCodeFailure } from "./types/shared.ts";
 
@@ -112,7 +112,9 @@ export default class Trakt {
 
     // Initialize module instances for internal use
     const genresModule = new GenresModule(this._call.bind(this));
-    const certificationsModule = new CertificationsModule(this._call.bind(this));
+    const certificationsModule = new CertificationsModule(
+      this._call.bind(this),
+    );
     const countriesModule = new CountriesModule(this._call.bind(this));
     const languagesModule = new LanguagesModule(this._call.bind(this));
     const networksModule = new NetworksModule(this._call.bind(this));

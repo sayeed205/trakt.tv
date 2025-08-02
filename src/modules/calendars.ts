@@ -5,9 +5,9 @@
  */
 
 import type {
-    CalendarMovie,
-    CalendarParams,
-    CalendarShow,
+  CalendarMovie,
+  CalendarParams,
+  CalendarShow,
 } from "../types/index.ts";
 import type { CallMethod } from "./base.ts";
 

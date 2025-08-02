@@ -5,15 +5,15 @@
  */
 
 import type {
-    CollectionItem,
-    HistoryItem,
-    PlaybackParams,
-    PlaybackProgress,
-    RatedItem,
-    SyncParams,
-    SyncResponse,
-    WatchedItem,
-    WatchlistItem,
+  CollectionItem,
+  HistoryItem,
+  PlaybackParams,
+  PlaybackProgress,
+  RatedItem,
+  SyncParams,
+  SyncResponse,
+  WatchedItem,
+  WatchlistItem,
 } from "../types/index.ts";
 import type { CollectionType } from "../types/sync.ts";
 
