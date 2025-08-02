@@ -1,11 +1,30 @@
-import type { IDs } from "./shared.ts";
 import { CreateListParams } from "./lists.ts";
+import type { IDs } from "./shared.ts";
 import { CommentUser } from "./users.ts";
 
 export type Movie = {
   title: string;
   year: number;
   ids: Omit<IDs, "tvdb">;
+};
+
+/**
+ * Extended movie type with additional metadata from the Trakt.tv API.
+ */
+export type MovieExtended = Movie & {
+  overview?: string;
+  released?: string;
+  runtime?: number;
+  certification?: string;
+  trailer?: string;
+  homepage?: string;
+  status?: string;
+  rating?: number;
+  votes?: number;
+  comment_count?: number;
+  language?: string;
+  available_translations?: string[];
+  genres?: string[];
 };
 
 export type TrendingMovies = {

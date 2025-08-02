@@ -103,6 +103,7 @@ import {
   Season,
   Show,
   ShowAlias,
+  ShowExtended,
   ShowStats,
   ShowTranslation,
   ShowUpdates,
@@ -261,8 +262,13 @@ export default class Trakt {
   };
 
   public shows = {
-    // Basic show operations
-    get: (id: string): Promise<Show> => this._call("get", `/shows/${id}`),
+    get(opts: { id: string; extended: boolean }): Promise<Show | ShowExtended> {
+      return this._call(
+        "get",
+        `/shows/${opts.id}`,
+        opts.extended ? { extended: true } : {},
+      );
+    },
     trending: (params?: {
       page?: number;
       limit?: number;

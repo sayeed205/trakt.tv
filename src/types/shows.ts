@@ -7,6 +7,12 @@ export type Show = {
   title: string;
   year: number;
   ids: IDs;
+};
+
+/**
+ * Extended show type representing a TV show from the Trakt.tv API.
+ */
+export type ShowExtended = Show & {
   overview?: string;
   first_aired?: string;
   airs?: {
