@@ -1,6 +1,6 @@
 {
   "name": "@hitarashi/trakt",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "exports": {
     ".": "./src/main.ts",
     "./types": "./src/types/index.ts",
