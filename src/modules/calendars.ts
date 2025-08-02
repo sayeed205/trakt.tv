@@ -5,19 +5,11 @@
  */
 
 import type {
-  CalendarMovie,
-  CalendarParams,
-  CalendarShow,
+    CalendarMovie,
+    CalendarParams,
+    CalendarShow,
 } from "../types/index.ts";
-
-/**
- * Type definition for the call method dependency injection
- */
-type CallMethod = <T = unknown>(
-  method: "get" | "post" | "put" | "delete",
-  path: string,
-  params?: Record<string, unknown>,
-) => Promise<T>;
+import type { CallMethod } from "./base.ts";
 
 /**
  * CalendarsModule class handles all calendar-related API endpoints.

@@ -6,15 +6,7 @@
 
 import type { Movie } from "../types/movies.ts";
 import type { Show } from "../types/shows.ts";
-
-/**
- * Type definition for the call method dependency injection
- */
-type CallMethod = <T = unknown>(
-  method: "get" | "post" | "put" | "delete",
-  path: string,
-  params?: Record<string, unknown>,
-) => Promise<T>;
+import type { CallMethod } from "./base.ts";
 
 /**
  * RecommendationsModule handles all recommendation-related API endpoints.

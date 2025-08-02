@@ -5,26 +5,19 @@
  */
 
 import type {
-  CollectionItem,
-  HistoryItem,
-  PlaybackParams,
-  PlaybackProgress,
-  RatedItem,
-  SyncParams,
-  SyncResponse,
-  WatchedItem,
-  WatchlistItem,
+    CollectionItem,
+    HistoryItem,
+    PlaybackParams,
+    PlaybackProgress,
+    RatedItem,
+    SyncParams,
+    SyncResponse,
+    WatchedItem,
+    WatchlistItem,
 } from "../types/index.ts";
 import type { CollectionType } from "../types/sync.ts";
 
-/**
- * Type definition for the call method dependency injection
- */
-type CallMethod = <T = unknown>(
-  method: "get" | "post" | "put" | "delete",
-  path: string,
-  params?: Record<string, unknown>,
-) => Promise<T>;
+import type { CallMethod } from "./base.ts";
 
 /**
  * SyncModule class handles all sync-related API endpoints.
