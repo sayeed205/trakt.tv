@@ -91,25 +91,8 @@ import {
   TrendingMovies,
   WatchedMovie,
 } from "./types/movies.ts";
-import {
-  CheckCodeFailure,
-  CheckCodeResponse,
-  RatingDistribution,
-} from "./types/shared.ts";
-import {
-  AnticipatedShow,
-  Episode,
-  PlayedShow,
-  Season,
-  Show,
-  ShowAlias,
-  ShowExtended,
-  ShowStats,
-  ShowTranslation,
-  ShowUpdates,
-  TrendingShow,
-  WatchedShow,
-} from "./types/shows.ts";
+import { CheckCodeFailure, CheckCodeResponse } from "./types/shared.ts";
+import { Show } from "./types/shows.ts";
 import { CollectionType } from "./types/sync.ts";
 import type {
   FollowRequest,
@@ -120,6 +103,7 @@ import type {
   UserProfile,
   UserSettings,
 } from "./types/users.ts";
+import { ShowsModule } from "./modules/shows.ts";
 
 /**
  * The main Trakt.tv API client for handling OAuth2 flows and token management.
@@ -261,109 +245,7 @@ export default class Trakt {
       }),
   };
 
-  public shows = {
-    get(opts: { id: string; extended: boolean }): Promise<Show | ShowExtended> {
-      return this._call(
-        "get",
-        `/shows/${opts.id}`,
-        opts.extended ? { extended: true } : {},
-      );
-    },
-    trending: (params?: {
-      page?: number;
-      limit?: number;
-    }): Promise<TrendingShow[]> => this._call("get", "/shows/trending", params),
-    popular: (params?: {
-      page?: number;
-      limit?: number;
-    }): Promise<Show[]> => this._call("get", "/shows/popular", params),
-    anticipated: (params?: {
-      page?: number;
-      limit?: number;
-    }): Promise<AnticipatedShow[]> =>
-      this._call("get", "/shows/anticipated", params),
-    watched: (params?: {
-      period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
-      page?: number;
-      limit?: number;
-    }): Promise<WatchedShow[]> =>
-      this._call("get", `/shows/watched/${params?.period || "weekly"}`, {
-        page: params?.page,
-        limit: params?.limit,
-      }),
-    played: (params?: {
-      period?: "daily" | "weekly" | "monthly" | "yearly" | "all";
-      page?: number;
-      limit?: number;
-    }): Promise<PlayedShow[]> =>
-      this._call("get", `/shows/played/${params?.period || "weekly"}`, {
-        page: params?.page,
-        limit: params?.limit,
-      }),
-    updates: (params: {
-      start_date: string;
-      page?: number;
-      limit?: number;
-    }): Promise<ShowUpdates[]> => this._call("get", "/shows/updates", params),
-
-    // Show metadata endpoints
-    aliases: (id: string | number): Promise<ShowAlias[]> =>
-      this._call("get", `/shows/${id}/aliases`),
-    translations: (params: {
-      id: string | number;
-      language?: string;
-    }): Promise<ShowTranslation[]> =>
-      this._call(
-        "get",
-        `/shows/${params.id}/translations${
-          params.language ? `/${params.language}` : ""
-        }`,
-      ),
-    comments: (params: { id: string | number }): Promise<Comment[]> =>
-      this._call("get", `/shows/${params.id}/comments`),
-    lists: (params: { id: string | number }): Promise<List[]> =>
-      this._call("get", `/shows/${params.id}/lists`),
-    people: (params: { id: string | number }): Promise<MoviePeople[]> =>
-      this._call("get", `/shows/${params.id}/people`),
-    ratings: (params: { id: string | number }): Promise<RatingDistribution> =>
-      this._call("get", `/shows/${params.id}/ratings`),
-    related: (
-      params: { id: string | number },
-    ): Promise<Pick<Show, "title" | "year" | "ids">[]> =>
-      this._call("get", `/shows/${params.id}/related`),
-    stats: (params: { id: string | number }): Promise<ShowStats> =>
-      this._call("get", `/shows/${params.id}/stats`),
-    watching: (params: { id: string | number }): Promise<CommentUser[]> =>
-      this._call("get", `/shows/${params.id}/watching`),
-
-    // Seasons and episodes endpoints
-    seasons: (params: {
-      id: string | number;
-    }): Promise<Pick<Season, "number" | "ids">[]> =>
-      this._call("get", `/shows/${params.id}/seasons`),
-    season: (params: {
-      id: string | number;
-      season: number;
-    }): Promise<Season[]> =>
-      this._call("get", `/shows/${params.id}/seasons/${params.season}/info`),
-    episodes: (params: {
-      id: string | number;
-      season: number;
-      translations?: string;
-    }): Promise<Pick<Episode, "season" | "number" | "title" | "ids">[]> =>
-      this._call("get", `/shows/${params.id}/seasons/${params.season}`, {
-        translations: params.translations,
-      }),
-    episode: (params: {
-      id: string | number;
-      season: number;
-      episode: number;
-    }): Promise<Episode> =>
-      this._call(
-        "get",
-        `/shows/${params.id}/seasons/${params.season}/episodes/${params.episode}`,
-      ),
-  };
+  public shows: ShowsModule;
 
   public search = {
     /**
@@ -1493,6 +1375,9 @@ export default class Trakt {
       pagination: false,
     };
     this.auth = auth;
+
+    // Initialize modules
+    this.shows = new ShowsModule(this._call.bind(this));
   }
 
   /**

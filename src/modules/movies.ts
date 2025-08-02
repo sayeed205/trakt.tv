@@ -83,7 +83,7 @@ export class MoviesModule {
   get(id: string, extended: false): Promise<Movie>;
 
   get(id: string, extended?: boolean): Promise<Movie | MovieExtended> {
-    const params = extended ? { extended: true } : {};
+    const params = extended ? { extended: "full" } : {};
     return this._call("get", `/movies/${id}`, params);
   }
 

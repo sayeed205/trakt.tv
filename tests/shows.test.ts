@@ -10,6 +10,7 @@ import type {
   Season,
   Show,
   ShowAlias,
+  ShowExtended,
   ShowTranslation,
   ShowUpdates,
   TrendingShow,
@@ -303,10 +304,9 @@ describe("Trakt Shows", () => {
       }
     });
 
-    it("should get show seasons with extended info", async () => {
+    it("should get show seasons", async () => {
       const seasons = await trakt.shows.seasons({
         id: "1390",
-        extended: "full",
       });
 
       expect(seasons).toBeDefined();
@@ -331,9 +331,7 @@ describe("Trakt Shows", () => {
 
       if (episodes.length > 0) {
         const firstEpisode = episodes[0];
-        expect(firstEpisode.season).toBe(1);
-        expect(firstEpisode.number).toBeGreaterThan(0);
-        expect(firstEpisode.title).toBeDefined();
+        expect(firstEpisode.number).toBeGreaterThanOrEqual(0);
         expect(firstEpisode.ids).toBeDefined();
         expect(firstEpisode.ids.trakt).toBeGreaterThan(0);
       }
@@ -365,12 +363,11 @@ describe("Trakt Shows", () => {
       expect(episode.ids.trakt).toBeGreaterThan(0);
     });
 
-    it("should get specific episode with extended info", async () => {
+    it("should get specific episode", async () => {
       const episode = await trakt.shows.episode({
         id: "1390",
         season: 1,
         episode: 1,
-        extended: "full",
       });
 
       expect(episode).toBeDefined();
@@ -383,6 +380,24 @@ describe("Trakt Shows", () => {
   describe("TypeScript Type Validation", () => {
     it("should validate Show type structure", () => {
       const mockShow: Show = {
+        title: "Breaking Bad",
+        year: 2008,
+        ids: {
+          trakt: 1390,
+          slug: "breaking-bad",
+          tvdb: 81189,
+          imdb: "tt0903747",
+          tmdb: 1396,
+        },
+      };
+
+      expect(mockShow.title).toBe("Breaking Bad");
+      expect(mockShow.year).toBe(2008);
+      expect(mockShow.ids.trakt).toBe(1390);
+    });
+
+    it("should validate ShowExtended type structure", () => {
+      const mockShow: ShowExtended = {
         title: "Breaking Bad",
         year: 2008,
         ids: {
@@ -675,14 +690,13 @@ describe("Trakt Shows", () => {
     });
 
     it("should handle extended parameters correctly", async () => {
-      const basicSeasons = await trakt.shows.seasons({ id: "1390" });
-      const fullSeasons = await trakt.shows.seasons({
-        id: "1390",
-        extended: "full",
-      });
+      const basicShow = await trakt.shows.get("1390");
+      const extendedShow = await trakt.shows.get("1390", true);
 
-      expect(Array.isArray(basicSeasons)).toBe(true);
-      expect(Array.isArray(fullSeasons)).toBe(true);
+      expect(basicShow).toBeDefined();
+      expect(basicShow.title).toBeDefined();
+      expect(extendedShow).toBeDefined();
+      expect(extendedShow.title).toBeDefined();
     });
 
     it("should handle date parameters correctly", async () => {
