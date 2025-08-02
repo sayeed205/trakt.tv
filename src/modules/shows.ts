@@ -375,7 +375,7 @@ export class ShowsModule {
     id: string | number,
     season: number,
     params?: Record<string, string>,
-  ): Promise<Pick<Episode, "number" | "ids">[]> {
+  ): Promise<Pick<Episode, "number" | "ids">> {
     return this._call(
       "get",
       `/shows/${id}/seasons/${season}/info`,
