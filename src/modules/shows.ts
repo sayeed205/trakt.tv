@@ -411,6 +411,8 @@ export class ShowsModule {
   /**
    * Get detailed information about a specific episode.
    *
+   * TODO)) update into separate modules with overloads
+   *
    * @param id - Trakt ID, Trakt slug, or IMDB ID Example: `game-of-thrones`.
    * @param season - Season Number Example: `1`.
    * @param episode - Episode Number Example: `1`.

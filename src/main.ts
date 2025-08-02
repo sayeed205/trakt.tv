@@ -32,7 +32,7 @@ import type {
   TokenResponse,
   TraktOptions,
 } from "./types/index.ts";
-import { CheckCodeFailure } from "./types/shared.ts";
+import { CheckCodeFailure, CheckCodeResponse } from "./types/shared.ts";
 
 // Module imports
 import { CalendarsModule } from "./modules/calendars.ts";
@@ -62,9 +62,6 @@ import { UsersModule } from "./modules/users.ts";
  * ```
  */
 export default class Trakt {
-  private settings: TraktOptions;
-  private auth: Auth;
-
   // Module instances
   public movies: MoviesModule;
   public shows: ShowsModule;
@@ -75,7 +72,6 @@ export default class Trakt {
   public lists: ListsModule;
   public comments: CommentsModule;
   public recommendations: RecommendationsModule;
-
   // Backward compatible API properties
   public genres: {
     movies: () => Promise<import("./types/index.ts").Genre[]>;
@@ -94,6 +90,8 @@ export default class Trakt {
     shows: () => Promise<import("./types/index.ts").Language[]>;
   };
   public networks: () => Promise<import("./types/index.ts").Network[]>;
+  private settings: TraktOptions;
+  private auth: Auth;
 
   constructor(settings: TraktOptions, auth: Auth = {}) {
     this.settings = settings;
@@ -165,7 +163,7 @@ export default class Trakt {
     code: string,
     state?: string,
   ): Promise<TokenResponse> {
-    return this._exchange({
+    return await this._exchange({
       code,
       client_id: this.settings.client_id,
       client_secret: this.settings.client_secret,
@@ -180,7 +178,7 @@ export default class Trakt {
    * @returns Promise resolving to new token response
    */
   public async refreshToken(refreshToken: string): Promise<TokenResponse> {
-    return this._exchange({
+    return await this._exchange({
       refresh_token: refreshToken,
       client_id: this.settings.client_id,
       client_secret: this.settings.client_secret,
@@ -194,37 +192,83 @@ export default class Trakt {
    * @returns Promise resolving to device code response
    */
   public async getDeviceCode(): Promise<DeviceCodeResponse> {
-    return this._call("post", "/oauth/device/code", {
+    return await this._call("post", "/oauth/device/code", {
       client_id: this.settings.client_id,
     });
   }
 
   /**
-   * Check device code status and exchange for tokens.
-   * @param deviceCode The device code from getDeviceCode()
-   * @returns Promise resolving to token response or check failure
+   * Use this to verify the OAuth2 Device code flow
+   * Use the device_code and poll at the interval (in seconds) to check if the user has authorized you app.
+   * Use expires_in to stop polling after that many seconds, and gracefully instruct the user to restart the process.
+   * It is important to poll at the correct interval and also stop polling when expired.
+   *
+   * When you receive a `200` success response,
+   * save the `access_token` so your app can authenticate the user in methods that require it.
+   * The `access_token` is valid for 24 hours.
+   * Save and use the `refresh_token` to get a new access_token without asking the user to re-authenticate.
+   * Check below for all the error codes that you should handle.
+   *
+   * `200`	Success - save the `access_token`
+   *
+   * `400`	Pending - waiting for the user to authorize your app
+   *
+   * `404`	Not Found - invalid `device_code`
+   *
+   * `409`	Already Used - user already approved this code
+   *
+   * `410`	Expired - the tokens have expired, restart the process
+   *
+   * `418`	Denied - user explicitly denied this code
+   *
+   * `429`	Slow Down - your app is polling too quickly
+   *
+   * @param code The device code returned from the initial request.
+   * @returns The OAuth {@link CheckCodeResponse} object.
    */
   public async checkDeviceCode(
-    deviceCode: string,
-  ): Promise<TokenResponse | CheckCodeFailure> {
+    code: string,
+  ): Promise<CheckCodeResponse> {
     try {
-      return await this._exchange({
-        code: deviceCode,
-        client_id: this.settings.client_id,
-        client_secret: this.settings.client_secret,
-        grant_type: "device_code",
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return {
-          status: 400,
-          message: error.message,
-        } as CheckCodeFailure;
+      const data = (await this._call(
+        "post",
+        "/oauth/device/token",
+        {
+          code,
+          client_id: this.settings.client_id,
+          client_secret: this.settings.client_secret!,
+        },
+      )) as TokenResponse;
+
+      return { status: 200, message: "Success", data };
+    } catch (error: any) {
+      const status: number = error.response?.status ?? 500;
+      let message = "Unknown error";
+
+      switch (status) {
+        case 400:
+          message = "Pending – waiting for user authorization";
+          break;
+        case 404:
+          message = "Not Found – invalid device_code";
+          break;
+        case 409:
+          message = "Already Used – user already approved this code";
+          break;
+        case 410:
+          message = "Expired – the tokens have expired, restart the process";
+          break;
+        case 418:
+          message = "Denied – user explicitly denied this code";
+          break;
+        case 429:
+          message = "Slow Down – polling too quickly";
+          break;
+        default:
+          message = error.response?.statusText ?? "Network or server error";
       }
-      return {
-        status: 400,
-        message: "Unknown error occurred",
-      } as CheckCodeFailure;
+
+      return { status: status as CheckCodeFailure["status"], message };
     }
   }
 
@@ -249,15 +293,6 @@ export default class Trakt {
     if (!token || token === this.auth.access_token) {
       this.auth = {};
     }
-  }
-
-  /**
-   * Get device codes for device authentication flow.
-   * @deprecated Use getDeviceCode() instead
-   * @returns Promise resolving to device code response
-   */
-  public async getCodes(): Promise<DeviceCodeResponse> {
-    return this.getDeviceCode();
   }
 
   /**
