@@ -4,7 +4,15 @@
  * Provides comprehensive access to movie information, ratings, comments, and related data.
  */
 
-import type {Certification, Comment, CommentUser, Genre, Language, Rating, Stats,} from "../types/index.ts";
+import type {
+  Certification,
+  Comment,
+  CommentUser,
+  Genre,
+  Language,
+  Rating,
+  Stats,
+} from "../types/index.ts";
 import type {
   AnticipatedMovie,
   BoxOfficeMovie,
@@ -22,7 +30,7 @@ import type {
   TrendingMovies,
   WatchedMovie,
 } from "../types/movies.ts";
-import type {CallMethod} from "./base.ts";
+import type { CallMethod } from "./base.ts";
 
 /**
  * Movies module class providing access to all movie-related Trakt.tv API endpoints.

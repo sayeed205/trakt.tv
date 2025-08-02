@@ -4,7 +4,11 @@
  * for shows, movies, premieres, finales, streaming, and DVD releases.
  */
 
-import type {CalendarMovie, CalendarParams, CalendarShow,} from "../types/index.ts";
+import type {
+  CalendarMovie,
+  CalendarParams,
+  CalendarShow,
+} from "../types/index.ts";
 
 /**
  * Type definition for the call method dependency injection

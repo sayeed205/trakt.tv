@@ -4,8 +4,12 @@
  * Provides comprehensive search functionality for movies, shows, episodes, people, and lists.
  */
 
-import type {SearchIdParams, SearchResult, SearchTextParams,} from "../types/search.ts";
-import type {CallMethod} from "./base.ts";
+import type {
+  SearchIdParams,
+  SearchResult,
+  SearchTextParams,
+} from "../types/search.ts";
+import type { CallMethod } from "./base.ts";
 
 /**
  * Search module class providing access to all search-related Trakt.tv API endpoints.

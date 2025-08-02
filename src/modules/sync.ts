@@ -15,7 +15,7 @@ import type {
   WatchedItem,
   WatchlistItem,
 } from "../types/index.ts";
-import type {CollectionType} from "../types/sync.ts";
+import type { CollectionType } from "../types/sync.ts";
 
 /**
  * Type definition for the call method dependency injection

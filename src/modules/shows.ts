@@ -5,9 +5,9 @@
  * comments, and related data.
  */
 
-import type {Comment, CommentUser, List} from "../types/index.ts";
-import type {MoviePeople} from "../types/movies.ts";
-import type {RatingDistribution} from "../types/shared.ts";
+import type { Comment, CommentUser, List } from "../types/index.ts";
+import type { MoviePeople } from "../types/movies.ts";
+import type { RatingDistribution } from "../types/shared.ts";
 import type {
   AnticipatedShow,
   Episode,
@@ -22,7 +22,7 @@ import type {
   TrendingShow,
   WatchedShow,
 } from "../types/shows.ts";
-import type {CallMethod} from "./base.ts";
+import type { CallMethod } from "./base.ts";
 
 /**
  * Shows module class providing access to all TV show-related Trakt.tv API endpoints.

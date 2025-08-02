@@ -16,8 +16,8 @@ import type {
   WatchedItem,
   WatchlistItem,
 } from "../types/index.ts";
-import type {Movie} from "../types/movies.ts";
-import type {Show} from "../types/shows.ts";
+import type { Movie } from "../types/movies.ts";
+import type { Show } from "../types/shows.ts";
 import type {
   FollowRequest,
   HiddenItem,
@@ -27,7 +27,7 @@ import type {
   UserProfile,
   UserSettings,
 } from "../types/users.ts";
-import type {CallMethod} from "./base.ts";
+import type { CallMethod } from "./base.ts";
 
 /**
  * Users module class providing access to all user-related Trakt.tv API endpoints.
